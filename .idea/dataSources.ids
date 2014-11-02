@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="dataSourceStorage">
+  <data-source name="PC_DB" uuid="5faf2c10-65aa-4ebe-a16d-6bb9932ebd3a">
+    <database-info product="SQLite" version="3.7.6.3" jdbc-version="2.1" driver-name="SQLiteJDBC" driver-version="native"/>
+    <case-sensitivity plain-identifiers="mixed" quoted-identifiers="mixed"/>
+    <schema name="" catalog=""/>
+    <table name="st_group" schema="" catalog="" type="TABLE">
+      <column name="group_id" sqlType="INT" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
+      <column name="group_name" sqlType="TEXT" precision="2000000000" scale="10" nullable="false" jdbcType="12"/>
+    </table>
+    <table name="student" schema="" catalog="" type="TABLE">
+      <column name="student_id" sqlType="INT" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
+      <column name="student_name" sqlType="TEXT" precision="2000000000" scale="10" nullable="false" jdbcType="12"/>
+      <column name="sn_id" sqlType="INT" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
+    </table>
+  </data-source>
+</component>
