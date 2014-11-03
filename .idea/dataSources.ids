@@ -4,14 +4,59 @@
     <database-info product="SQLite" version="3.7.6.3" jdbc-version="2.1" driver-name="SQLiteJDBC" driver-version="native"/>
     <case-sensitivity plain-identifiers="mixed" quoted-identifiers="mixed"/>
     <schema name="" catalog=""/>
-    <table name="st_group" schema="" catalog="" type="TABLE">
-      <column name="group_id" sqlType="INT" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
-      <column name="group_name" sqlType="TEXT" precision="2000000000" scale="10" nullable="false" jdbcType="12"/>
+    <table name="info" schema="" catalog="" type="TABLE">
+      <column name="infoId" sqlType="INTEGER" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
+      <column name="infoDesc" sqlType="TEXT" precision="2000000000" scale="10" nullable="false" jdbcType="12"/>
+      <primary-key columns="infoId"/>
+      <exported-key name="#FAKE_status_1" table="status" schema="" catalog="" columns="statusInfoId"/>
     </table>
-    <table name="student" schema="" catalog="" type="TABLE">
-      <column name="student_id" sqlType="INT" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
-      <column name="student_name" sqlType="TEXT" precision="2000000000" scale="10" nullable="false" jdbcType="12"/>
-      <column name="sn_id" sqlType="INT" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
+    <table name="permission" schema="" catalog="" type="TABLE">
+      <column name="permId" sqlType="INTEGER" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
+      <column name="permType" sqlType="TEXT" precision="2000000000" scale="10" nullable="false" jdbcType="12"/>
+      <primary-key columns="permId"/>
+      <exported-key name="#FAKE_user_1" table="user" schema="" catalog="" columns="userPermId"/>
+    </table>
+    <table name="script" schema="" catalog="" type="TABLE">
+      <column name="scriptId" sqlType="INTEGER" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
+      <column name="scriptPath" sqlType="TEXT" precision="2000000000" scale="10" nullable="false" jdbcType="12"/>
+      <column name="scriptExeCmd" sqlType="TEXT" precision="2000000000" scale="10" nullable="false" jdbcType="12"/>
+      <column name="scriptDesc" sqlType="TEXT" precision="2000000000" scale="10" nullable="false" jdbcType="12"/>
+      <primary-key columns="scriptId"/>
+      <exported-key name="#FAKE_task_3" table="task" schema="" catalog="" columns="taskScriptId"/>
+    </table>
+    <table name="sqlite_sequence" schema="" catalog="" type="TABLE">
+      <column name="name" sqlType="" precision="2000000000" scale="10" nullable="true" jdbcType="12"/>
+      <column name="seq" sqlType="" precision="2000000000" scale="10" nullable="true" jdbcType="12"/>
+    </table>
+    <table name="status" schema="" catalog="" type="TABLE">
+      <column name="statusId" sqlType="INTEGER" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
+      <column name="satusTime" sqlType="TEXT" precision="2000000000" scale="10" nullable="false" jdbcType="12"/>
+      <column name="statusDesc" sqlType="TEXT" precision="2000000000" scale="10" nullable="false" jdbcType="12"/>
+      <column name="statusInfoId" sqlType="INTEGER" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
+      <primary-key columns="statusId"/>
+      <foreign-key name="#FAKE_status_1" columns="statusInfoId" ref-table="info" ref-schema="" ref-catalog="" ref-columns="infoId" update-rule="3" delete-rule="3" deferrability="1"/>
+      <exported-key name="#FAKE_task_2" table="task" schema="" catalog="" columns="taskStatusId"/>
+    </table>
+    <table name="task" schema="" catalog="" type="TABLE">
+      <column name="taskId" sqlType="INTEGER" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
+      <column name="taskScriptId" sqlType="INTEGER" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
+      <column name="taskScriptConf" sqlType="TEXT" precision="2000000000" scale="10" nullable="false" jdbcType="12"/>
+      <column name="taskStatusId" sqlType="INTEGER" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
+      <column name="taskUserId" sqlType="INTEGER" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
+      <column name="taskTime" sqlType="TEXT" precision="2000000000" scale="10" nullable="false" jdbcType="12"/>
+      <primary-key columns="taskId"/>
+      <foreign-key name="#FAKE_task_1" columns="taskUserId" ref-table="user" ref-schema="" ref-catalog="" ref-columns="userId" update-rule="3" delete-rule="3" deferrability="1"/>
+      <foreign-key name="#FAKE_task_2" columns="taskStatusId" ref-table="status" ref-schema="" ref-catalog="" ref-columns="statusId" update-rule="3" delete-rule="3" deferrability="1"/>
+      <foreign-key name="#FAKE_task_3" columns="taskScriptId" ref-table="script" ref-schema="" ref-catalog="" ref-columns="scriptId" update-rule="3" delete-rule="3" deferrability="1"/>
+    </table>
+    <table name="user" schema="" catalog="" type="TABLE">
+      <column name="userId" sqlType="INTEGER" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
+      <column name="userName" sqlType="TEXT" precision="2000000000" scale="10" nullable="false" jdbcType="12"/>
+      <column name="userEmail" sqlType="TEXT" precision="2000000000" scale="10" nullable="false" jdbcType="12"/>
+      <column name="userPermId" sqlType="INTEGER" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
+      <primary-key columns="userId"/>
+      <foreign-key name="#FAKE_user_1" columns="userPermId" ref-table="permission" ref-schema="" ref-catalog="" ref-columns="permId" update-rule="3" delete-rule="3" deferrability="1"/>
+      <exported-key name="#FAKE_task_1" table="task" schema="" catalog="" columns="taskUserId"/>
     </table>
   </data-source>
 </component>
