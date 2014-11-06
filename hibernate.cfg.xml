@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-configuration SYSTEM
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.dialect">
+            org.hibernate.dialect.SQLiteDialect
+        </property>
+        <property name="hibernate.connection.driver_class">
+            org.sqlite.JDBC
+        </property>
+        <!-- Assume test is the database name -->
+        <property name="hibernate.connection.url">
+            jdbc:sqlite:/home/kovalchuk/Desktop/sqlite_db/quartz
+        </property>
+        <!-- List of XML mapping files -->
+        <mapping class="pojo.Info" />
+        <mapping class="pojo.Permission" />
+        <mapping class="pojo.Script" />
+        <mapping class="pojo.Status" />
+        <mapping class="pojo.User" />
+        <mapping class="pojo.Task" />
+        <!--<mapping resource="TaskH.hbm.xml"/> -->
+    </session-factory>
+</hibernate-configuration>
