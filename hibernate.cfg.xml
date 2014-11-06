@@ -7,14 +7,14 @@
             org.hibernate.dialect.SQLiteDialect
         </property>
         <property name="hibernate.connection.driver_class">
-            org.sqlite.JDBC
+            org.SqLi
         </property>
         <!-- Assume test is the database name -->
         <property name="hibernate.connection.url">
-            jdbc:sqlite:/home/kovalchuk/Desktop/sqlite_db/quartz
+            jdbc:sqlite:C:/Users/mrproper/IdeaProjects/PCProject/res/PC_DB.sqlite
         </property>
         <!-- List of XML mapping files -->
-        <mapping class="pojo.Info" />
+        <mapping class="pojo.Result" />
         <mapping class="pojo.Permission" />
         <mapping class="pojo.Script" />
         <mapping class="pojo.Status" />
