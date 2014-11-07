@@ -7,7 +7,7 @@
             org.hibernate.dialect.SQLiteDialect
         </property>
         <property name="hibernate.connection.driver_class">
-            org.SqLi
+            org.sqlite.JDBC
         </property>
         <!-- Assume test is the database name -->
         <property name="hibernate.connection.url">
@@ -15,11 +15,9 @@
         </property>
         <!-- List of XML mapping files -->
         <mapping class="pojo.Result" />
-        <mapping class="pojo.Permission" />
-        <mapping class="pojo.Script" />
-        <mapping class="pojo.Status" />
-        <mapping class="pojo.User" />
-        <mapping class="pojo.Task" />
+        <mapping class="pojo.SportNorm" />
+        <mapping class="pojo.Group" />
+        <mapping class="pojo.Student" />
         <!--<mapping resource="TaskH.hbm.xml"/> -->
     </session-factory>
 </hibernate-configuration>
