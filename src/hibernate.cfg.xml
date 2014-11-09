@@ -14,10 +14,10 @@
             jdbc:sqlite:C:/Users/mrproper/IdeaProjects/PCProject/res/PC_DB.sqlite
         </property>
         <!-- List of XML mapping files -->
-        <mapping class="pojo.Result" />
-        <mapping class="pojo.SportNorm" />
         <mapping class="pojo.Group" />
+        <mapping class="pojo.SportNorm" />
         <mapping class="pojo.Student" />
+        <mapping class="pojo.Result" />
         <!--<mapping resource="Result.hbm.xml"/> -->
     </session-factory>
 </hibernate-configuration>
