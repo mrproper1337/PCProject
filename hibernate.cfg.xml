@@ -18,6 +18,6 @@
         <mapping class="pojo.SportNorm" />
         <mapping class="pojo.Group" />
         <mapping class="pojo.Student" />
-        <!--<mapping resource="TaskH.hbm.xml"/> -->
+        <!--<mapping resource="Result.hbm.xml"/> -->
     </session-factory>
 </hibernate-configuration>
