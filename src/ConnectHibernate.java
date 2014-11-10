@@ -14,18 +14,6 @@ public class ConnectHibernate {
 
     private static SessionFactory factory;
     public ConnectHibernate(){
-
-    }
-
-    public static void main(String[] args) {
-
-//        try{
-//            factory = new Configuration().configure().buildSessionFactory();
-//        }catch (Throwable ex) {
-//            System.err.println("Failed to create sessionFactory object." + ex);
-//            throw new ExceptionInInitializerError(ex);
-//        }
-
         try{
             factory = new AnnotationConfiguration()
                     .configure()
@@ -39,8 +27,6 @@ public class ConnectHibernate {
             throw new ExceptionInInitializerError(ex);
         }
 
-        ConnectHibernate cs=new ConnectHibernate();
-        cs.listGroups();
     }
 
     public List loadTable(String request){
@@ -84,10 +70,10 @@ public class ConnectHibernate {
             tx = session.beginTransaction();
             List<Group> groups = session.createQuery("FROM Group").list();
 
-            for (int i=0;i<4;i++){
-                Group group = groups.get(i);
-                System.out.print("Id: " + group.getGroupId());
-                System.out.println("  Name: " + group.getGroupName());
+            for(Group a:groups){
+
+                System.out.print("Id: " + a.getGroupId());
+                System.out.println("  Name: " + a.getGroupName());
             }
             tx.commit();
         }catch (HibernateException e) {
