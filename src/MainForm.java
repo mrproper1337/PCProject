@@ -1,14 +1,10 @@
 import pojo.*;
-
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.GroupLayout;
 import java.util.List;
-import javax.swing.event.TableModelListener;
-import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
+
 /*
  * Created by JFormDesigner on Sun Nov 09 21:32:23 EET 2014
  */
@@ -23,28 +19,39 @@ public class MainForm extends JFrame {
     private DefaultTableModel students_tm,groups_tm;
     public MainForm() {
         ch = new ConnectHibernate();
-        initComponents
-                ();
+        initComponents();
+        final List groupList= ch.loadTable("from Group");
+        final List studentList= ch.loadTable("from Student");
 
-        students_tm = new DefaultTableModel(){
+        groups_tm = new DefaultTableModel(){
 
             @Override
             public int getRowCount() {
-                return 0;
+                return groupList.size();
             }
 
             @Override
             public int getColumnCount() {
-                return 0;
+                return 2;
             }
 
             @Override
             public String getColumnName(int columnIndex) {
-                return null;
+                if(columnIndex==0)return "ID";
+                else return "Група";
             }
 
             @Override
             public Class<?> getColumnClass(int columnIndex) {
+                try{
+                    if(columnIndex==0)
+                        return Class.forName("java.lang.Integer");
+                    else
+                        return Class.forName("java.lang.String");
+
+                }catch(ClassNotFoundException e){
+                    e.printStackTrace();
+                }
                 return null;
             }
 
@@ -55,15 +62,106 @@ public class MainForm extends JFrame {
 
             @Override
             public Object getValueAt(int rowIndex, int columnIndex) {
-                return null;
+                Group ret;
+                if(columnIndex==0){
+                    ret = (pojo.Group)groupList.get(rowIndex);
+                    return ret.getGroupId();
+                }
+
+                else{
+                    ret = (pojo.Group)groupList.get(rowIndex);
+                    return ret.getGroupName();
+                }
+
             }
 
             @Override
             public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-
+            //ADD SOME LATER (rly soon)
             }
         };
 
+        students_tm = new DefaultTableModel(){
+
+            @Override
+            public int getRowCount() {
+                return studentList.size();
+            }
+
+            @Override
+            public int getColumnCount() {
+                return 5;
+            }
+
+            @Override
+            public String getColumnName(int columnIndex) {
+                switch(columnIndex){
+                    case 0:
+                    return "ID";
+                    case 1:
+                    return "П.І.Б.";
+                    case 2:
+                    return "Стать";
+                    case 3:
+                    return "Група здоров'я";
+                    case 4:
+                    return "Група";
+
+                }
+                return null;
+            }
+
+            @Override
+            public Class<?> getColumnClass(int columnIndex) {
+                try{
+                    switch(columnIndex){
+                        case 0:
+                            return Class.forName("java.lang.Integer");
+                        case 1:
+                            return Class.forName("java.lang.String");
+                        case 2:
+                            return Class.forName("java.lang.String");
+                        case 3:
+                            return Class.forName("java.lang.String");
+                        case 4:
+                            return Class.forName("java.lang.String");
+
+                    }
+                }catch(ClassNotFoundException e){
+                    e.printStackTrace();
+                }
+                return null;
+
+            }
+
+            @Override
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return false;
+            }
+
+            @Override
+            public Object getValueAt(int rowIndex, int columnIndex) {
+//                Group ret;
+//                if(columnIndex==0){
+//                    ret = (pojo.Group)studentList.get(rowIndex);
+//                    return ret.getGroupId();
+//                }
+//
+//                else{
+//                    ret = (pojo.Group)studentList.get(rowIndex);
+//                    return ret.getGroupName();
+//                }
+                            //REFACTOR DAT METHOD
+                return null;//AND REMOVE DIS AFTER
+            }
+
+            @Override
+            public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+                //ADD SOME LATER (rly soon)
+            }
+        };
+
+        table1.setModel(students_tm);
     }
 
 
@@ -91,6 +189,9 @@ public class MainForm extends JFrame {
 
         //======== scrollPane2 ========
         {
+
+            //---- table1 ----
+            table1.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
             scrollPane2.setViewportView(table1);
         }
 
@@ -148,9 +249,9 @@ public class MainForm extends JFrame {
                                                 .addComponent(checkBox1, GroupLayout.PREFERRED_SIZE, 123, GroupLayout.PREFERRED_SIZE)
                                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                 .addComponent(checkBox2, GroupLayout.PREFERRED_SIZE, 94, GroupLayout.PREFERRED_SIZE)))
-                                .addContainerGap(4, Short.MAX_VALUE))
+                    .addContainerGap(4, Short.MAX_VALUE))
         );
-        contentPaneLayout.linkSize(SwingConstants.HORIZONTAL, new Component[]{checkBox1, comboBox1, comboBox2, comboBox3});
+        contentPaneLayout.linkSize(SwingConstants.HORIZONTAL, new Component[] {checkBox1, comboBox1, comboBox2, comboBox3});
         contentPaneLayout.setVerticalGroup(
             contentPaneLayout.createParallelGroup()
                 .addGroup(contentPaneLayout.createSequentialGroup()
@@ -159,9 +260,9 @@ public class MainForm extends JFrame {
                             .addGroup(GroupLayout.Alignment.LEADING, contentPaneLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                     .addComponent(checkBox1)
                                     .addComponent(checkBox2, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE))
-                            .addComponent(comboBox1, GroupLayout.Alignment.LEADING)
+                        .addComponent(comboBox1, GroupLayout.Alignment.LEADING)
                             .addComponent(comboBox2)
-                            .addComponent(comboBox3))
+                        .addComponent(comboBox3))
                     .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                     .addGroup(contentPaneLayout.createParallelGroup()
                             .addComponent(scrollPane2, GroupLayout.DEFAULT_SIZE, 513, Short.MAX_VALUE)

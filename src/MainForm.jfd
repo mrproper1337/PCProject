@@ -12,6 +12,7 @@ new FormModel {
 				name: "scrollPane2"
 				add( new FormComponent( "javax.swing.JTable" ) {
 					name: "table1"
+					"autoResizeMode": 0
 				} )
 			} )
 			add( new FormComponent( "javax.swing.JComboBox" ) {
