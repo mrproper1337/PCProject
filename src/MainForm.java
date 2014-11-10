@@ -161,7 +161,7 @@ public class MainForm extends JFrame {
             }
         };
 
-        table1.setModel(students_tm);
+        table1.setModel(groups_tm);
     }
 
 
