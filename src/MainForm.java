@@ -5,15 +5,7 @@ import javax.swing.GroupLayout;
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
 
-/*
- * Created by JFormDesigner on Sun Nov 09 21:32:23 EET 2014
- */
 
-
-
-/**
- * @author Ash Coopeer
- */
 public class MainForm extends JFrame {
     private ConnectHibernate ch;
     private DefaultTableModel students_tm,groups_tm;
@@ -180,9 +172,9 @@ public class MainForm extends JFrame {
         comboBox1 = new JComboBox();
         panel1 = new JPanel();
         comboBox2 = new JComboBox();
-        comboBox3 = new JComboBox();
         checkBox1 = new JCheckBox();
         checkBox2 = new JCheckBox();
+        comboBox3 = new JComboBox();
 
         //======== this ========
         Container contentPane = getContentPane();
@@ -191,7 +183,7 @@ public class MainForm extends JFrame {
         {
 
             //---- table1 ----
-            table1.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+            table1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
             scrollPane2.setViewportView(table1);
         }
 
@@ -214,7 +206,7 @@ public class MainForm extends JFrame {
             );
             panel1Layout.setVerticalGroup(
                 panel1Layout.createParallelGroup()
-                    .addGap(0, 513, Short.MAX_VALUE)
+                    .addGap(0, 509, Short.MAX_VALUE)
             );
         }
 
@@ -231,44 +223,46 @@ public class MainForm extends JFrame {
         GroupLayout contentPaneLayout = new GroupLayout(contentPane);
         contentPane.setLayout(contentPaneLayout);
         contentPaneLayout.setHorizontalGroup(
-                contentPaneLayout.createParallelGroup()
+            contentPaneLayout.createParallelGroup()
+                .addGroup(contentPaneLayout.createSequentialGroup()
+                    .addContainerGap()
+                    .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
                         .addGroup(contentPaneLayout.createSequentialGroup()
-                                .addContainerGap()
-                                .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-                                        .addGroup(contentPaneLayout.createSequentialGroup()
-                                                .addComponent(scrollPane2, GroupLayout.PREFERRED_SIZE, 594, GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(panel1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                                        .addGroup(contentPaneLayout.createSequentialGroup()
-                                                .addComponent(comboBox1, GroupLayout.PREFERRED_SIZE, 184, GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(comboBox2, GroupLayout.PREFERRED_SIZE, 193, GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(comboBox3, GroupLayout.PREFERRED_SIZE, 184, GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                                                .addComponent(checkBox1, GroupLayout.PREFERRED_SIZE, 123, GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                .addComponent(checkBox2, GroupLayout.PREFERRED_SIZE, 94, GroupLayout.PREFERRED_SIZE)))
-                    .addContainerGap(4, Short.MAX_VALUE))
+                            .addComponent(scrollPane2, GroupLayout.PREFERRED_SIZE, 594, GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(panel1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                        .addGroup(contentPaneLayout.createSequentialGroup()
+                            .addComponent(comboBox1, GroupLayout.PREFERRED_SIZE, 184, GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(comboBox2, GroupLayout.PREFERRED_SIZE, 193, GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(checkBox1, GroupLayout.PREFERRED_SIZE, 123, GroupLayout.PREFERRED_SIZE)
+                            .addGap(18, 18, 18)
+                            .addComponent(comboBox3, GroupLayout.PREFERRED_SIZE, 193, GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(checkBox2, GroupLayout.PREFERRED_SIZE, 94, GroupLayout.PREFERRED_SIZE)))
+                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-        contentPaneLayout.linkSize(SwingConstants.HORIZONTAL, new Component[] {checkBox1, comboBox1, comboBox2, comboBox3});
+        contentPaneLayout.linkSize(SwingConstants.HORIZONTAL, new Component[] {checkBox1, comboBox1, comboBox2});
         contentPaneLayout.setVerticalGroup(
             contentPaneLayout.createParallelGroup()
                 .addGroup(contentPaneLayout.createSequentialGroup()
                     .addContainerGap()
-                    .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.TRAILING, false)
-                            .addGroup(GroupLayout.Alignment.LEADING, contentPaneLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                    .addComponent(checkBox1)
-                                    .addComponent(checkBox2, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE))
-                        .addComponent(comboBox1, GroupLayout.Alignment.LEADING)
-                            .addComponent(comboBox2)
-                        .addComponent(comboBox3))
+                    .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+                        .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                            .addComponent(checkBox2)
+                            .addComponent(checkBox1)
+                            .addComponent(comboBox3, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE))
+                        .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                            .addComponent(comboBox2, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(comboBox1, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)))
                     .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                     .addGroup(contentPaneLayout.createParallelGroup()
-                            .addComponent(scrollPane2, GroupLayout.DEFAULT_SIZE, 513, Short.MAX_VALUE)
-                            .addComponent(panel1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(scrollPane2, GroupLayout.DEFAULT_SIZE, 509, Short.MAX_VALUE)
+                        .addComponent(panel1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addContainerGap())
         );
+        contentPaneLayout.linkSize(SwingConstants.VERTICAL, new Component[] {checkBox1, comboBox1, comboBox2});
         pack();
         setLocationRelativeTo(getOwner());
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
@@ -281,8 +275,8 @@ public class MainForm extends JFrame {
     private JComboBox comboBox1;
     private JPanel panel1;
     private JComboBox comboBox2;
-    private JComboBox comboBox3;
     private JCheckBox checkBox1;
     private JCheckBox checkBox2;
+    private JComboBox comboBox3;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 }

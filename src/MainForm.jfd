@@ -4,8 +4,8 @@ new FormModel {
 	contentType: "form/swing"
 	root: new FormRoot {
 		add( new FormWindow( "javax.swing.JFrame", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-			"$horizontalGroup": "par l {seq {space :::p, par l:::p {seq {comp scrollPane2:::p:594:p, space :::p, comp panel1:::p::p}, seq {comp comboBox1:1::p:184:p, space :::p, comp comboBox2:1::p:193:p, space :::p, comp comboBox3:1::p:184:p, space u:::p, comp checkBox1:1::p:123:p, space :::x, comp checkBox2:::p:94:p}}, space ::4:x}}"
-			"$verticalGroup": "par l {seq l {space :::p, par t:::p {par b:l {comp checkBox1::b:p::p, comp checkBox2::b:p:38:p}, comp comboBox1::l:::x, comp comboBox2::t:::x, comp comboBox3::t:::x}, space :::p, par l {comp scrollPane2::::513:x, comp panel1:::::x}, space :::p}}"
+			"$horizontalGroup": "par l {seq {space :::p, par l:::p {seq {comp scrollPane2:::p:594:p, space :::p, comp panel1:::p::p}, seq {comp comboBox1:1::p:184:p, space :::p, comp comboBox2:1::p:193:p, space :::p, comp checkBox1:1::p:123:p, space s:::p, comp comboBox3:::p:193:p, space :::x, comp checkBox2:::p:94:p}}, space :::x}}"
+			"$verticalGroup": "par l {seq l {space :::p, par t {par b:t {comp checkBox2::b:p::p, comp checkBox1:2:b:p::p, comp comboBox3::b:p:38:p}, par b:t {comp comboBox2:2:b:p:38:p, comp comboBox1:2:b:p:38:p}}, space :::p, par l {comp scrollPane2::::509:x, comp panel1:::::x}, space :::p}}"
 		} ) {
 			name: "this"
 			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
@@ -20,15 +20,12 @@ new FormModel {
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
 				"$horizontalGroup": "par l {space :0:444:x}"
-				"$verticalGroup": "par l {space :0:513:x}"
+				"$verticalGroup": "par l {space :0:509:x}"
 			} ) {
 				name: "panel1"
 			} )
 			add( new FormComponent( "javax.swing.JComboBox" ) {
 				name: "comboBox2"
-			} )
-			add( new FormComponent( "javax.swing.JComboBox" ) {
-				name: "comboBox3"
 			} )
 			add( new FormComponent( "javax.swing.JCheckBox" ) {
 				name: "checkBox1"
@@ -41,6 +38,9 @@ new FormModel {
 				"text": "Графік"
 				"font": #Font0
 				"horizontalAlignment": 0
+			} )
+			add( new FormComponent( "javax.swing.JComboBox" ) {
+				name: "comboBox3"
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
