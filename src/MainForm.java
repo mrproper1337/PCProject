@@ -24,21 +24,14 @@ public class MainForm extends JFrame {
         initComponents();
         comboBox2.addItem("Хлопці");
         comboBox2.addItem("Дівчата");
-        setModels();
+        setGroupModels();
         table1.setModel(groups_tm);
 
     }
-    private void setModels(){
-        int check=0;
-        if(checkBox1.isSelected())check=1;
-        else check=0;
-        System.out.println("from Student where( gender="
-                +(comboBox2.getSelectedIndex())
-                +" and healthGroup="+check+")");
-        final List groupList=ch.loadTable("from Group"),
-                studentList=ch.loadTable("from Student where( gender="
-                +(comboBox2.getSelectedIndex())
-                +" and healthGroup="+check+")");
+    //should be called after st_group changes
+    private void setGroupModels(){
+        System.out.println("setGroupModels");
+        final List groupList=ch.loadTable("from Group");
         groups_tm = new DefaultTableModel(){
 
             @Override
@@ -91,6 +84,31 @@ public class MainForm extends JFrame {
 
             }
         };
+        comboBox1.removeAllItems();
+        comboBox1.addItem("Всі");
+        for(Group a:(List<pojo.Group>)groupList)
+            comboBox1.addItem(a.getGroupName());
+    }
+
+    //should be called after students changes
+    private void setStudentModels(){
+        System.out.println("setStudModels");
+        int check=0;
+        if(checkBox1.isSelected())check=1;
+        else check=0;
+        final List studentList=ch.loadTable("from Student");
+        System.out.println(studentList.size());
+        for(int i=0;i<studentList.size();i++){
+            Student item=(Student)studentList.get(i);
+            if(item.getGroupId().getGroupName().equals(comboBox1.getSelectedItem())){
+                   // || item.getGender()!=comboBox2.getSelectedIndex()
+                    //|| item.getHealthGroup()!=check){
+                studentList.remove(item);
+            }
+
+        }
+        System.out.println(studentList.size());
+
         students_tm = new DefaultTableModel(){
 
             @Override
@@ -173,16 +191,18 @@ public class MainForm extends JFrame {
                 return null;
             }
         };
-
-        comboBox1.addItem("Всі");
-        for(Group a:(List<pojo.Group>)groupList)
-            comboBox1.addItem(a.getGroupName());
     }
 
-    private void filterChange(ActionEvent e) {
-        setModels();
-        if(comboBox1.getSelectedIndex()==0)table1.setModel(groups_tm);
-        else table1.setModel(students_tm);
+    private void filterChanged(ItemEvent e) {
+        if(comboBox1.getSelectedIndex()==0){
+            setGroupModels();
+            table1.setModel(groups_tm);
+        }
+        else if(comboBox1.getSelectedIndex()>0){
+            setStudentModels();
+            table1.setModel(students_tm);
+        }
+        table1.updateUI();
     }
 
     private void initComponents() {
@@ -230,7 +250,7 @@ public class MainForm extends JFrame {
                     panel3.setLayout(panel3Layout);
                     panel3Layout.setHorizontalGroup(
                         panel3Layout.createParallelGroup()
-                            .addGap(0, 487, Short.MAX_VALUE)
+                            .addGap(0, 486, Short.MAX_VALUE)
                     );
                     panel3Layout.setVerticalGroup(
                         panel3Layout.createParallelGroup()
@@ -238,31 +258,9 @@ public class MainForm extends JFrame {
                     );
                 }
 
-                //---- comboBox1 ----
-                comboBox1.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        filterChange(e);
-                    }
-                });
-
-                //---- comboBox2 ----
-                comboBox2.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        filterChange(e);
-                    }
-                });
-
                 //---- checkBox1 ----
                 checkBox1.setText("\u0421\u043f\u0435\u0446\u0433\u0440\u0443\u043f\u0430");
                 checkBox1.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-                checkBox1.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        filterChange(e);
-                    }
-                });
 
                 GroupLayout panel1Layout = new GroupLayout(panel1);
                 panel1.setLayout(panel1Layout);
@@ -283,7 +281,7 @@ public class MainForm extends JFrame {
                                 .addComponent(panel3, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addGroup(panel1Layout.createSequentialGroup()
                                     .addComponent(comboBox3, GroupLayout.PREFERRED_SIZE, 173, GroupLayout.PREFERRED_SIZE)
-                                    .addGap(0, 314, Short.MAX_VALUE)))
+                                    .addGap(0, 313, Short.MAX_VALUE)))
                             .addContainerGap())
                 );
                 panel1Layout.setVerticalGroup(
