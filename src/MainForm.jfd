@@ -4,47 +4,62 @@ new FormModel {
 	contentType: "form/swing"
 	root: new FormRoot {
 		add( new FormWindow( "javax.swing.JFrame", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-			"$horizontalGroup": "par l {seq {space :::p, par l:::p {seq {comp scrollPane2:::p:594:p, space :::p, comp panel1:::p::p}, seq {comp comboBox1:1::p:184:p, space :::p, comp comboBox2:1::p:193:p, space :::p, comp checkBox1:1::p:123:p, space s:::p, comp comboBox3:::p:193:p, space :::x, comp checkBox2:::p:94:p}}, space :::x}}"
-			"$verticalGroup": "par l {seq l {space :::p, par t {par b:t {comp checkBox2::b:p::p, comp checkBox1:2:b:p::p, comp comboBox3::b:p:38:p}, par b:t {comp comboBox2:2:b:p:38:p, comp comboBox1:2:b:p:38:p}}, space :::p, par l {comp scrollPane2::::509:x, comp panel1:::::x}, space :::p}}"
+			"$horizontalGroup": "par l {comp tabbedPane1::l:::x}"
+			"$verticalGroup": "par l {comp tabbedPane1::l:::x}"
 		} ) {
 			name: "this"
-			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
-				name: "scrollPane2"
-				add( new FormComponent( "javax.swing.JTable" ) {
-					name: "table1"
-					"autoResizeMode": 0
+			add( new FormContainer( "javax.swing.JTabbedPane", new FormLayoutManager( class javax.swing.JTabbedPane ) ) {
+				name: "tabbedPane1"
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+					"$horizontalGroup": "par l {seq l {space :::p, par l {comp scrollPane1:::p::p, seq l {comp comboBox1:::p:173:p, space :::p, comp comboBox2:::p:173:p, space :::p, comp checkBox1:::::x}}, space :::p, par l {comp panel3:::::x, seq {comp comboBox3:::p:173:p, space :0:314:x}}, space :::p}}"
+					"$verticalGroup": "par l {seq l {space :::p, par l:::p {comp scrollPane1:::::x, comp panel3:::::x}, space :::p, par l {comp comboBox1:::::x, comp checkBox1::l:::x, seq t {space :0:0:x, par l {comp comboBox3::t:p:32:p, comp comboBox2::t:p:32:p}}}, space :::p}}"
+				} ) {
+					name: "panel1"
+					add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+						name: "scrollPane1"
+						add( new FormComponent( "javax.swing.JTable" ) {
+							name: "table1"
+						} )
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+						"$horizontalGroup": "par l {space :0:487:x}"
+						"$verticalGroup": "par l {space :0:0:x}"
+					} ) {
+						name: "panel3"
+						"background": new java.awt.Color( 204, 204, 255, 255 )
+					} )
+					add( new FormComponent( "javax.swing.JComboBox" ) {
+						name: "comboBox1"
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "filterChange", true ) )
+					} )
+					add( new FormComponent( "javax.swing.JComboBox" ) {
+						name: "comboBox2"
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "filterChange", true ) )
+					} )
+					add( new FormComponent( "javax.swing.JCheckBox" ) {
+						name: "checkBox1"
+						"text": "Спецгрупа"
+						"font": new java.awt.Font( "Segoe UI", 0, 14 )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "filterChange", true ) )
+					} )
+					add( new FormComponent( "javax.swing.JComboBox" ) {
+						name: "comboBox3"
+					} )
+				}, new FormLayoutConstraints( null ) {
+					"title": "Перегляд"
 				} )
-			} )
-			add( new FormComponent( "javax.swing.JComboBox" ) {
-				name: "comboBox1"
-			} )
-			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-				"$horizontalGroup": "par l {space :0:444:x}"
-				"$verticalGroup": "par l {space :0:509:x}"
-			} ) {
-				name: "panel1"
-			} )
-			add( new FormComponent( "javax.swing.JComboBox" ) {
-				name: "comboBox2"
-			} )
-			add( new FormComponent( "javax.swing.JCheckBox" ) {
-				name: "checkBox1"
-				"text": "Спецгрупа"
-				"font": &Font0 new java.awt.Font( "Segoe UI", 0, 18 )
-				"horizontalAlignment": 0
-			} )
-			add( new FormComponent( "javax.swing.JCheckBox" ) {
-				name: "checkBox2"
-				"text": "Графік"
-				"font": #Font0
-				"horizontalAlignment": 0
-			} )
-			add( new FormComponent( "javax.swing.JComboBox" ) {
-				name: "comboBox3"
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+					"$horizontalGroup": "par l {space :0:957:x}"
+					"$verticalGroup": "par l {space :0:468:x}"
+				} ) {
+					name: "panel2"
+				}, new FormLayoutConstraints( null ) {
+					"title": "Редагування"
+				} )
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 1070, 605 )
+			"size": new java.awt.Dimension( 975, 530 )
 		} )
 	}
 }
