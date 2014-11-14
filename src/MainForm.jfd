@@ -30,14 +30,17 @@ new FormModel {
 					} )
 					add( new FormComponent( "javax.swing.JComboBox" ) {
 						name: "comboBox1"
+						addEvent( new FormEvent( "java.awt.event.ItemListener", "itemStateChanged", "applyFilter", true ) )
 					} )
 					add( new FormComponent( "javax.swing.JComboBox" ) {
 						name: "comboBox2"
+						addEvent( new FormEvent( "java.awt.event.ItemListener", "itemStateChanged", "applyFilter", true ) )
 					} )
 					add( new FormComponent( "javax.swing.JCheckBox" ) {
 						name: "checkBox1"
 						"text": "Спецгрупа"
 						"font": new java.awt.Font( "Segoe UI", 0, 14 )
+						addEvent( new FormEvent( "java.awt.event.ItemListener", "itemStateChanged", "applyFilter", true ) )
 					} )
 					add( new FormComponent( "javax.swing.JComboBox" ) {
 						name: "comboBox3"
