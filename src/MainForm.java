@@ -3,6 +3,7 @@ import pojo.*;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.GroupLayout;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
 
@@ -19,9 +20,11 @@ public class MainForm extends JFrame {
 
     private DefaultTableModel students_tm,groups_tm;
     ConnectHibernate ch;
+    List<Integer> groupsId;
     boolean listenerIsStopped;
     public MainForm() {
         ch = new ConnectHibernate();
+        groupsId=new ArrayList<>();
         initComponents();
         listenerIsStopped=true;
         comboBox2.addItem("Хлопці");
@@ -87,32 +90,35 @@ public class MainForm extends JFrame {
             }
         };
         listenerIsStopped=true;
+        if(groupsId!=null)groupsId.clear();
         comboBox1.removeAllItems();
         comboBox1.addItem("Всі");
-        for(Group a:(List<pojo.Group>)groupList)
+        for(Group a:(List<pojo.Group>)groupList){
             comboBox1.addItem(a.getGroupName());
+            groupsId.add(a.getGroupId());
+        }
+
         listenerIsStopped=false;
     }
 
     //should be called after students changes
     private void setStudentModels(){
         System.out.println("setStudModels");
-//        int check;
-//        if(checkBox1.isSelected())check=1;
-//        else check=0;
-        final List studentList=ch.loadTable("from Student");
-        System.out.println(studentList.size());
-        for(int i=0;i<studentList.size();i++){
-            Student item=(Student)studentList.get(i);
-            if(item.getGroupId().getGroupName().equals(comboBox1.getSelectedItem())){
-                   // || item.getGender()!=comboBox2.getSelectedIndex()
-                    //|| item.getHealthGroup()!=check){
-                studentList.remove(item);
-            }
+        int check;
+        if(checkBox1.isSelected())
+            check=1;
+        else
+            check=0;
 
-        }
-        System.out.println(studentList.size());
-
+        String querry = "from Student where(" +
+                "groupId = "+groupsId.get(comboBox1.getSelectedIndex()-1)+
+                " and " +
+                "gender ="+comboBox2.getSelectedIndex()+
+                " and " +
+                "healthGroup = "+check+
+                ")";
+        System.out.println(querry);
+        final List studentList=ch.loadTable(querry);
         students_tm = new DefaultTableModel(){
 
             @Override
@@ -203,7 +209,7 @@ public class MainForm extends JFrame {
                 setGroupModels();
                 table1.setModel(groups_tm);
             }
-            else if(comboBox1.getSelectedIndex()>0){
+            else{
                 setStudentModels();
                 table1.setModel(students_tm);
             }

@@ -62,25 +62,4 @@ public class ConnectHibernate {
         }
         return id;
     }
-
-    public void  listGroups( ){
-        Session session = factory.openSession();
-        Transaction tx = null;
-        try{
-            tx = session.beginTransaction();
-            List<Group> groups = session.createQuery("FROM Group").list();
-
-            for(Group a:groups){
-
-                System.out.print("Id: " + a.getGroupId());
-                System.out.println("  Name: " + a.getGroupName());
-            }
-            tx.commit();
-        }catch (HibernateException e) {
-            if (tx!=null) tx.rollback();
-            e.printStackTrace();
-        }finally {
-            session.close();
-        }
-    }
 }
