@@ -49,10 +49,19 @@ new FormModel {
 					"title": "Перегляд"
 				} )
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-					"$horizontalGroup": "par l {space :0:957:x}"
-					"$verticalGroup": "par l {space :0:468:x}"
+					"$horizontalGroup": "par l {seq {space :::p, par l {comp scrollPane2::l:p:662:p, comp comboBox4::l:p:173:p}, space ::289:x}}"
+					"$verticalGroup": "par l {seq l {space :::p, comp scrollPane2:::p::p, space :::p, comp comboBox4:::p:32:p, space :::x}}"
 				} ) {
 					name: "panel2"
+					add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+						name: "scrollPane2"
+						add( new FormComponent( "javax.swing.JTable" ) {
+							name: "table2"
+						} )
+					} )
+					add( new FormComponent( "javax.swing.JComboBox" ) {
+						name: "comboBox4"
+					} )
 				}, new FormLayoutConstraints( null ) {
 					"title": "Редагування"
 				} )

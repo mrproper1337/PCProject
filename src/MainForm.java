@@ -20,16 +20,18 @@ public class MainForm extends JFrame {
 
     private DefaultTableModel students_tm,groups_tm;
     ConnectHibernate ch;
-    List<Integer> groupsId;
+    List<Integer> groupsId,snId;
     boolean listenerIsStopped;
     public MainForm() {
         ch = new ConnectHibernate();
         groupsId=new ArrayList<>();
+        snId=new ArrayList<>();
         initComponents();
         listenerIsStopped=true;
         comboBox2.addItem("Хлопці");
         comboBox2.addItem("Дівчата");
         setGroupModels();
+        setSportNormsModels();
         table1.setModel(groups_tm);
 
     }
@@ -90,9 +92,9 @@ public class MainForm extends JFrame {
             }
         };
         listenerIsStopped=true;
-        if(groupsId!=null)groupsId.clear();
+        groupsId.clear();
         comboBox1.removeAllItems();
-        comboBox1.addItem("Всі");
+        comboBox1.addItem("По групам");
         for(Group a:(List<pojo.Group>)groupList){
             comboBox1.addItem(a.getGroupName());
             groupsId.add(a.getGroupId());
@@ -203,6 +205,18 @@ public class MainForm extends JFrame {
         };
     }
 
+    //should be called after sn changes
+    private void setSportNormsModels(){
+        snId.clear();
+        comboBox3.removeAllItems();
+        System.out.println("setSNModels");
+        List snList=ch.loadTable("from SportNormName");
+        for(SportNormName a:(List<SportNormName>)snList){
+            comboBox3.addItem(a.getSportNormName());
+            snId.add(a.getSportNormNameId());
+        }
+    }
+
     private void applyFilter(ItemEvent e) {
         if(!listenerIsStopped){
             if(comboBox1.getSelectedIndex()==0){
@@ -216,6 +230,13 @@ public class MainForm extends JFrame {
             table1.updateUI();
         }
     }
+
+
+
+
+
+    //       U CAN'T TOUCH DIS
+    //           \/\/\/
 
     private void initComponents() {
 
@@ -231,6 +252,9 @@ public class MainForm extends JFrame {
         checkBox1 = new JCheckBox();
         comboBox3 = new JComboBox();
         panel2 = new JPanel();
+        scrollPane2 = new JScrollPane();
+        table2 = new JTable();
+        comboBox4 = new JComboBox();
 
         //======== this ========
         Container contentPane = getContentPane();
@@ -342,15 +366,30 @@ public class MainForm extends JFrame {
             //======== panel2 ========
             {
 
+                //======== scrollPane2 ========
+                {
+                    scrollPane2.setViewportView(table2);
+                }
+
                 GroupLayout panel2Layout = new GroupLayout(panel2);
                 panel2.setLayout(panel2Layout);
                 panel2Layout.setHorizontalGroup(
                     panel2Layout.createParallelGroup()
-                        .addGap(0, 957, Short.MAX_VALUE)
+                        .addGroup(panel2Layout.createSequentialGroup()
+                            .addContainerGap()
+                            .addGroup(panel2Layout.createParallelGroup()
+                                .addComponent(scrollPane2, GroupLayout.PREFERRED_SIZE, 662, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(comboBox4, GroupLayout.PREFERRED_SIZE, 173, GroupLayout.PREFERRED_SIZE))
+                            .addContainerGap(289, Short.MAX_VALUE))
                 );
                 panel2Layout.setVerticalGroup(
                     panel2Layout.createParallelGroup()
-                        .addGap(0, 468, Short.MAX_VALUE)
+                        .addGroup(panel2Layout.createSequentialGroup()
+                            .addContainerGap()
+                            .addComponent(scrollPane2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(comboBox4, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
+                            .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 );
             }
             tabbedPane1.addTab("\u0420\u0435\u0434\u0430\u0433\u0443\u0432\u0430\u043d\u043d\u044f", panel2);
@@ -383,5 +422,8 @@ public class MainForm extends JFrame {
     private JCheckBox checkBox1;
     private JComboBox comboBox3;
     private JPanel panel2;
+    private JScrollPane scrollPane2;
+    private JTable table2;
+    private JComboBox comboBox4;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 }
