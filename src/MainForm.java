@@ -110,15 +110,15 @@ public class MainForm extends JFrame {
         else
             check=0;
 
-        String querry = "from Student where(" +
+        String query = "from Student where(" +
                 "groupId = "+groupsId.get(comboBox1.getSelectedIndex()-1)+
                 " and " +
                 "gender ="+comboBox2.getSelectedIndex()+
                 " and " +
                 "healthGroup = "+check+
                 ")";
-        System.out.println(querry);
-        final List studentList=ch.loadTable(querry);
+        System.out.println(query);
+        final List studentList=ch.loadTable(query);
         students_tm = new DefaultTableModel(){
 
             @Override
