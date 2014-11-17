@@ -15,6 +15,7 @@
         </property>
         <!-- List of XML mapping files -->
         <mapping class="pojo.Group" />
+        <mapping class="pojo.SportNormName" />
         <mapping class="pojo.SportNorm" />
         <mapping class="pojo.Student" />
         <mapping class="pojo.Result" />

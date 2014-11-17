@@ -12,8 +12,9 @@ public class SportNorm {
     @Column(name = "sportNormId")
     private int sportNormId;
 
-    @Column(name = "sportNormName")
-    private String sportNormName;
+    @ManyToOne
+    @JoinColumn(name = "sportNormNameId")
+    private SportNormName sportNormNameId;
 
     @Column(name = "courseNorm")
     private int courseNorm;
@@ -24,8 +25,8 @@ public class SportNorm {
     @Column(name = "healthGroupNorm")
     private int healthGroupNorm;
 
-    @Column(name = "exellentMark")
-    private double exellentMark;
+    @Column(name = "excellentMark")
+    private double excellentMark;
 
     @Column(name = "goodMark")
     private double goodMark;
@@ -44,13 +45,7 @@ public class SportNorm {
         this.sportNormId = sportNormId;
     }
 
-    public String getSportNormName() {
-        return sportNormName;
-    }
 
-    public void setSportNormName(String sportNormName) {
-        this.sportNormName = sportNormName;
-    }
 
     public int getCourseNorm() {
         return courseNorm;
@@ -76,12 +71,12 @@ public class SportNorm {
         this.healthGroupNorm = healthGroupNorm;
     }
 
-    public double getExellentMark() {
-        return exellentMark;
+    public double getExcellentMark() {
+        return excellentMark;
     }
 
-    public void setExellentMark(double exellentMark) {
-        this.exellentMark = exellentMark;
+    public void setExcellentMark(double excellentMark) {
+        this.excellentMark = excellentMark;
     }
 
     public double getGoodMark() {
