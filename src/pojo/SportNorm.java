@@ -45,7 +45,13 @@ public class SportNorm {
         this.sportNormId = sportNormId;
     }
 
+    public SportNormName getSportNormNameId() {
+        return sportNormNameId;
+    }
 
+    public void setSportNormNameId(SportNormName sportNormNameId) {
+        this.sportNormNameId = sportNormNameId;
+    }
 
     public int getCourseNorm() {
         return courseNorm;
