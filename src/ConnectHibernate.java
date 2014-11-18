@@ -60,4 +60,19 @@ public class ConnectHibernate {
         }
         return id;
     }
+
+    public <T>void updateInTable(T item){
+        Session session = factory.openSession();
+        Transaction tx = null;
+        try{
+            tx = session.beginTransaction();
+            session.update(item);
+            tx.commit();
+        }catch (HibernateException e) {
+            if (tx!=null) tx.rollback();
+            e.printStackTrace();
+        }finally {
+            session.close();
+        }
+    }
 }
