@@ -26,14 +26,13 @@ public class MainForm extends JFrame {
         ch = new ConnectHibernate();
         groupsId=new ArrayList<>();
         snId=new ArrayList<>();
-        initComponents();
         listenerIsStopped=true;
+        initComponents();
         table1.setModel(setGroupModels(false));
         table2.setModel(setGroupModels(true));
         setSportNormsModels();
 
     }
-
     private DefaultTableModel setGroupModels(final boolean editable){
         System.out.println("setGroupModels");
         DefaultTableModel groups_tm;
@@ -118,13 +117,19 @@ public class MainForm extends JFrame {
             check=1;
         else
             check=0;
-        String query = "from Student where(" +
-                "groupId = "+groupsId.get(comboBox1.getSelectedIndex()-1)+
-                " and " +
-                "gender ="+comboBox2.getSelectedIndex()+
-                " and " +
-                "healthGroup = "+check+
-                ")";
+
+        String query;
+        if(!editable){
+            query = "from Student where(" +
+                    "groupId = "+groupsId.get(comboBox1.getSelectedIndex()-1)+
+                    " and " +
+                    "gender ="+comboBox2.getSelectedIndex()+
+                    " and " +
+                    "healthGroup = "+check+
+                    ")";
+        }
+        else query = "from Student";
+
         System.out.println(query);
         final List studentList=ch.loadTable(query);
         students_tm = new DefaultTableModel(){
@@ -166,7 +171,10 @@ public class MainForm extends JFrame {
                         case 1:
                             return Class.forName("java.lang.String");
                         case 2:
-                            return Class.forName("java.lang.String");
+                            if(!editable)
+                                return Class.forName("java.lang.String");
+                            else
+                                return Class.forName("javax.swing.JComboBox");
                         case 3:
                             return Class.forName("java.lang.String");
                         case 4:
@@ -246,7 +254,7 @@ public class MainForm extends JFrame {
             snId.add(a.getSportNormNameId());
         }
     }
-    private void applyFilter(ItemEvent e) {
+    private void applyReadFormFilter(ItemEvent e) {
         if(!listenerIsStopped){
             if(comboBox1.getSelectedIndex()==0)
                 table1.setModel(setGroupModels(false));
@@ -254,6 +262,18 @@ public class MainForm extends JFrame {
                 table1.setModel(setStudentModels(false));
             table1.updateUI();
         }
+    }
+    private void applyWriteFormFilter(ItemEvent e) {
+        switch(comboBox4.getSelectedIndex()){
+            case 0:
+                table2.setModel(setGroupModels(true));
+                break;
+            case 1:
+                table2.setModel(setStudentModels(true));
+                break;
+        }
+//        System.out.println(comboBox4.getSelectedIndex());
+        table2.updateUI();
     }
     private void updateUI(){
         table1.setModel(setGroupModels(false));
@@ -265,13 +285,11 @@ public class MainForm extends JFrame {
         comboBox1.updateUI();
         comboBox3.updateUI();
     }
-
-    private void changeTable(ItemEvent e) {
-        // TODO add your code here
-    }
-
-
-
+//    Групи
+//            Студенти
+//    Результати
+//            Нормативи
+//
 
     //       U CAN'T TOUCH DIS
     //           \/\/\/
@@ -337,7 +355,7 @@ public class MainForm extends JFrame {
                 comboBox1.addItemListener(new ItemListener() {
                     @Override
                     public void itemStateChanged(ItemEvent e) {
-                        applyFilter(e);
+                        applyReadFormFilter(e);
                     }
                 });
 
@@ -349,7 +367,7 @@ public class MainForm extends JFrame {
                 comboBox2.addItemListener(new ItemListener() {
                     @Override
                     public void itemStateChanged(ItemEvent e) {
-                        applyFilter(e);
+                        applyReadFormFilter(e);
                     }
                 });
 
@@ -359,7 +377,7 @@ public class MainForm extends JFrame {
                 checkBox1.addItemListener(new ItemListener() {
                     @Override
                     public void itemStateChanged(ItemEvent e) {
-                        applyFilter(e);
+                        applyReadFormFilter(e);
                     }
                 });
 
@@ -424,7 +442,7 @@ public class MainForm extends JFrame {
                 comboBox4.addItemListener(new ItemListener() {
                     @Override
                     public void itemStateChanged(ItemEvent e) {
-                        changeTable(e);
+                        applyWriteFormFilter(e);
                     }
                 });
 
