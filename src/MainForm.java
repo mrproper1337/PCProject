@@ -57,16 +57,7 @@ public class MainForm extends JFrame {
 
             @Override
             public Class<?> getColumnClass(int columnIndex) {
-                try{
-                    if(columnIndex==0)
-                        return Class.forName("java.lang.Integer");
-                    else
-                        return Class.forName("java.lang.String");
-
-                }catch(ClassNotFoundException e){
-                    e.printStackTrace();
-                }
-                return null;
+                return getValueAt(0,columnIndex).getClass();
             }
 
             @Override
@@ -129,7 +120,6 @@ public class MainForm extends JFrame {
                     ")";
         }
         else query = "from Student";
-
         System.out.println(query);
         final List studentList=ch.loadTable(query);
         students_tm = new DefaultTableModel(){
@@ -164,36 +154,12 @@ public class MainForm extends JFrame {
 
             @Override
             public Class<?> getColumnClass(int columnIndex) {
-                try{
-                    switch(columnIndex){
-                        case 0:
-                            return Class.forName("java.lang.Integer");
-                        case 1:
-                            return Class.forName("java.lang.String");
-                        case 2:
-                            if(!editable)
-                                return Class.forName("java.lang.String");
-                            else
-                                return Class.forName("javax.swing.JComboBox");
-                        case 3:
-                            return Class.forName("java.lang.String");
-                        case 4:
-                            return Class.forName("java.lang.String");
-
-                    }
-                }catch(ClassNotFoundException e){
-                    e.printStackTrace();
-                }
-                return null;
-
+                return getValueAt(0,columnIndex).getClass();
             }
 
             @Override
             public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return (columnIndex==1
-                        || columnIndex==2
-                        || columnIndex==3
-                        || columnIndex==4) && editable;
+                return columnIndex!=0 && editable;
             }
 
             @Override
@@ -272,7 +238,6 @@ public class MainForm extends JFrame {
                 table2.setModel(setStudentModels(true));
                 break;
         }
-//        System.out.println(comboBox4.getSelectedIndex());
         table2.updateUI();
     }
     private void updateUI(){
