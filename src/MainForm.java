@@ -1,10 +1,7 @@
 import java.awt.event.*;
-import pojo.*;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.GroupLayout;
-import java.util.ArrayList;
-import java.util.List;
 import javax.swing.table.DefaultTableModel;
 
 /*
@@ -18,238 +15,49 @@ import javax.swing.table.DefaultTableModel;
  */
 public class MainForm extends JFrame {
 
-    //private DefaultTableModel students_tm,groups_tm;
     ConnectHibernate ch;
-    List<Integer> groupsId,snId;
+    ModelLoader tml;
     boolean listenerIsStopped;
+
     public MainForm() {
         ch = new ConnectHibernate();
-        groupsId=new ArrayList<>();
-        snId=new ArrayList<>();
-        listenerIsStopped=true;
+        tml = new ModelLoader(this,ch);
+        listenerIsStopped = true;
         initComponents();
-        table1.setModel(setGroupModels(false));
-        table2.setModel(setGroupModels(true));
-        setSportNormsModels();
-
+        table1.setModel(tml.setGroupModels(false));
+        table2.setModel(tml.setGroupModels(true));
+        tml.setGroupCombo();
+        tml.setSNCombo();
+        //updateUI();
     }
-    private DefaultTableModel setGroupModels(final boolean editable){
-        System.out.println("setGroupModels");
-        DefaultTableModel groups_tm;
-        final List groupList=ch.loadTable("from Group");
-        groups_tm = new DefaultTableModel(){
 
-            @Override
-            public int getRowCount() {
-                return groupList.size();
-            }
-
-            @Override
-            public int getColumnCount() {
-                return 2;
-            }
-
-            @Override
-            public String getColumnName(int columnIndex) {
-                if(columnIndex==0)return "ID";
-                else return "Група";
-            }
-
-            @Override
-            public Class<?> getColumnClass(int columnIndex) {
-                return getValueAt(0,columnIndex).getClass();
-            }
-
-            @Override
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return editable && columnIndex == 1;
-            }
-
-            @Override
-            public Object getValueAt(int rowIndex, int columnIndex) {
-                Group ret;
-                if(columnIndex==0){
-                    ret = (pojo.Group)groupList.get(rowIndex);
-                    return ret.getGroupId();
-                }
-
-                else{
-                    ret = (pojo.Group)groupList.get(rowIndex);
-                    return ret.getGroupName();
-                }
-
-            }
-
-            @Override
-            public void setValueAt(Object aValue, int row, int column) {
-                Group obj =(Group)groupList.get(row);
-                obj.setGroupName(aValue.toString());
-                ch.updateInTable(obj);
-                updateUI();
-            }
-        };
-        listenerIsStopped=true;
-        groupsId.clear();
-        comboBox1.removeAllItems();
-        comboBox1.addItem("По групам");
-        for(Group a:(List<pojo.Group>)groupList){
-            comboBox1.addItem(a.getGroupName());
-            groupsId.add(a.getGroupId());
-        }
-        listenerIsStopped=false;
-        return groups_tm;
-    }
-    private DefaultTableModel setStudentModels(final boolean editable){
-        System.out.println("setStudModels");
-
-        DefaultTableModel students_tm;
-        int check;
-        if(checkBox1.isSelected())
-            check=1;
-        else
-            check=0;
-
-        String query;
-        if(!editable){
-            query = "from Student where(" +
-                    "groupId = "+groupsId.get(comboBox1.getSelectedIndex()-1)+
-                    " and " +
-                    "gender ="+comboBox2.getSelectedIndex()+
-                    " and " +
-                    "healthGroup = "+check+
-                    ")";
-        }
-        else query = "from Student";
-        System.out.println(query);
-        final List studentList=ch.loadTable(query);
-        students_tm = new DefaultTableModel(){
-
-            @Override
-            public int getRowCount() {
-                return studentList.size();
-            }
-
-            @Override
-            public int getColumnCount() {
-                return 5;
-            }
-
-            @Override
-            public String getColumnName(int columnIndex) {
-                switch(columnIndex){
-                    case 0:
-                        return "ID";
-                    case 1:
-                        return "П.І.Б.";
-                    case 2:
-                        return "Стать";
-                    case 3:
-                        return "Група здоров'я";
-                    case 4:
-                        return "Група";
-
-                }
-                return null;
-            }
-
-            @Override
-            public Class<?> getColumnClass(int columnIndex) {
-                return getValueAt(0,columnIndex).getClass();
-            }
-
-            @Override
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return columnIndex!=0 && editable;
-            }
-
-            @Override
-            public Object getValueAt(int rowIndex, int columnIndex) {
-                Student res=(pojo.Student)studentList.get(rowIndex);
-                switch(columnIndex){
-                    case 0:
-                        return res.getStudentId();
-                    case 1:
-                        return res.getName();
-                    case 2:
-                        if(!editable){
-                            if(res.getGender()==0)
-                                return "хлопець";
-                            else
-                                return "дівчина";
-                        }
-                        else{
-                            JComboBox cb = new JComboBox();
-                            cb.addItem("хлопець");
-                            cb.addItem("дівчина");
-                            cb.setSelectedIndex(res.getGender());
-                        }
-                    case 3:
-                        if(res.getHealthGroup()==1)
-                            return "Спецгрупа";
-                        else
-                            return "Звичайна";
-                    case 4:
-                        return res.getGroupId().getGroupName();
-                }
-                return null;
-            }
-
-            @Override
-            public void setValueAt(Object aValue, int row, int column) {
-                Student obj =(Student)studentList.get(row);
-                switch(column){
-                    case 1:
-                        obj.setName(aValue.toString());
-                        break;
-                    case 2:
-                }
-                ch.updateInTable(obj);
-                updateUI();
-            }
-        };
-
-        return  students_tm;
-    }
-    private void setSportNormsModels(){
-        snId.clear();
-        comboBox3.removeAllItems();
-        System.out.println("setSNModels");
-        List snList=ch.loadTable("from SportNormName");
-        for(SportNormName a:(List<SportNormName>)snList){
-            comboBox3.addItem(a.getSportNormName());
-            snId.add(a.getSportNormNameId());
-        }
-    }
     private void applyReadFormFilter(ItemEvent e) {
         if(!listenerIsStopped){
-            if(comboBox1.getSelectedIndex()==0)
-                table1.setModel(setGroupModels(false));
-            else
-                table1.setModel(setStudentModels(false));
+            table1.setModel(comboBox1.getSelectedIndex() == 0 ? tml.setGroupModels(false) : tml.setStudentModels(false));
             table1.updateUI();
         }
     }
     private void applyWriteFormFilter(ItemEvent e) {
+        DefaultTableModel tm = null;
         switch(comboBox4.getSelectedIndex()){
             case 0:
-                table2.setModel(setGroupModels(true));
+                tm = tml.setGroupModels(true);
                 break;
             case 1:
-                table2.setModel(setStudentModels(true));
+                tm = tml.setStudentModels(true);
                 break;
         }
+        table2.setModel(tm);
         table2.updateUI();
     }
-    private void updateUI(){
-        table1.setModel(setGroupModels(false));
-        table2.setModel(setGroupModels(true));
-        setSportNormsModels();
 
+    private void updateUI(){
         table1.updateUI();
         table2.updateUI();
         comboBox1.updateUI();
         comboBox3.updateUI();
     }
+
 //    Групи
 //            Студенти
 //    Результати
@@ -461,19 +269,19 @@ public class MainForm extends JFrame {
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
     // Generated using JFormDesigner Evaluation license - Ash Hisenberg
-    private JTabbedPane tabbedPane1;
-    private JPanel panel1;
-    private JScrollPane scrollPane1;
-    private JTable table1;
-    private JPanel panel3;
-    private JComboBox comboBox1;
-    private JComboBox<String> comboBox2;
-    private JCheckBox checkBox1;
-    private JComboBox comboBox3;
-    private JPanel panel2;
-    private JScrollPane scrollPane2;
-    private JTable table2;
-    private JComboBox<String> comboBox4;
-    private JButton button1;
+    JTabbedPane tabbedPane1;
+    JPanel panel1;
+    JScrollPane scrollPane1;
+    JTable table1;
+    JPanel panel3;
+    JComboBox comboBox1;
+    JComboBox<String> comboBox2;
+    JCheckBox checkBox1;
+    JComboBox comboBox3;
+    JPanel panel2;
+    JScrollPane scrollPane2;
+    public JTable table2;
+    JComboBox<String> comboBox4;
+    JButton button1;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 }

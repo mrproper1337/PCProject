@@ -3,11 +3,17 @@ JFDML JFormDesigner: "5.2.1.0.132" Java: "1.8.0_25" encoding: "UTF-8"
 new FormModel {
 	contentType: "form/swing"
 	root: new FormRoot {
+		auxiliary() {
+			"JavaCodeGenerator.defaultVariableModifiers": 0
+		}
 		add( new FormWindow( "javax.swing.JFrame", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
 			"$horizontalGroup": "par l {comp tabbedPane1::l:::x}"
 			"$verticalGroup": "par l {comp tabbedPane1::l:::x}"
 		} ) {
 			name: "this"
+			auxiliary() {
+				"JavaCodeGenerator.variableModifiers": 1
+			}
 			add( new FormContainer( "javax.swing.JTabbedPane", new FormLayoutManager( class javax.swing.JTabbedPane ) ) {
 				name: "tabbedPane1"
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
@@ -62,6 +68,9 @@ new FormModel {
 						name: "scrollPane2"
 						add( new FormComponent( "javax.swing.JTable" ) {
 							name: "table2"
+							auxiliary() {
+								"JavaCodeGenerator.variableModifiers": 1
+							}
 						} )
 					} )
 					add( new FormComponent( "javax.swing.JComboBox" ) {
