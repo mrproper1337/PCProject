@@ -3,6 +3,7 @@ import pojo.*;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,22 +12,20 @@ public class ModelLoader {
     ConnectHibernate ch;
     MainForm form;
     List<Integer> groupsId,snId;
-    DefaultTableModel currentModel;
     String lastQuery,currentQuery;
 
     ModelLoader(MainForm form, ConnectHibernate ch){
         this.form = form;
         this.ch = ch;
         lastQuery = "";
-        currentModel=null;
         groupsId=new ArrayList<>();
         snId=new ArrayList<>();
     }
 
-    public DefaultTableModel setGroupModels(final boolean editable){
+    public void getGroupModel(final boolean editable){
         currentQuery="from Group";
         if(!lastQuery.equals(currentQuery)){
-            System.out.println("setGroupModels");
+            System.out.println("getGroupModel");
             DefaultTableModel groups_tm;
             lastQuery = currentQuery;
             final List groupList=ch.loadTable(currentQuery);
@@ -75,14 +74,12 @@ public class ModelLoader {
                     ch.updateInTable(obj);
                 }
             };
-            currentModel = groups_tm;
-            return groups_tm;
+            if(editable)form.table2.setModel(groups_tm);
+            else form.table1.setModel(groups_tm);
         }
-        else return currentModel;
     }
-    public DefaultTableModel setStudentModels(final boolean editable){
-        int check;
-        check = form.checkBox1.isSelected() ? 1 : 0;
+    public void getStudentModel(final boolean editable){
+        int check = form.checkBox1.isSelected() ? 1 : 0;
         if(!editable){
             currentQuery = "from Student where(" +
                     "groupId = "+groupsId.get(form.comboBox1.getSelectedIndex()-1)+
@@ -148,12 +145,7 @@ public class ModelLoader {
                                 else
                                     return "дівчина";
                             }
-                            else{
-                                JComboBox cb = new JComboBox();
-                                cb.addItem("хлопець");
-                                cb.addItem("дівчина");
-                                cb.setSelectedIndex(res.getGender());
-                            }
+                            else break;
                         case 3:
                             if(res.getHealthGroup()==1)
                                 return "Спецгрупа";
@@ -177,10 +169,17 @@ public class ModelLoader {
                     ch.updateInTable(obj);
                 }
             };
-            currentModel = students_tm;
-            return  students_tm;
+            if(editable){
+                form.table2.setModel(students_tm);
+                TableColumn genderColumn = form.table2.getColumnModel().getColumn(2);
+                JComboBox genders = new JComboBox();
+                genders.addItem("хлопець");
+                genders.addItem("дівчина");
+                genderColumn.setCellEditor(new DefaultCellEditor(genders));
+
+            }
+            else form.table1.setModel(students_tm);
         }
-        else return currentModel;
     }
     public void setGroupCombo(){
         final List groupList=ch.loadTable("from Group");

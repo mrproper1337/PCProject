@@ -24,8 +24,8 @@ public class MainForm extends JFrame {
         tml = new ModelLoader(this,ch);
         listenerIsStopped = true;
         initComponents();
-        table1.setModel(tml.setGroupModels(false));
-        table2.setModel(tml.setGroupModels(true));
+        tml.getGroupModel(false);
+        tml.getGroupModel(true);
         tml.setGroupCombo();
         tml.setSNCombo();
         //updateUI();
@@ -33,21 +33,20 @@ public class MainForm extends JFrame {
 
     private void applyReadFormFilter(ItemEvent e) {
         if(!listenerIsStopped){
-            table1.setModel(comboBox1.getSelectedIndex() == 0 ? tml.setGroupModels(false) : tml.setStudentModels(false));
+            if(comboBox1.getSelectedIndex() == 0)tml.getGroupModel(false);
+            else tml.getStudentModel(false);
             table1.updateUI();
         }
     }
     private void applyWriteFormFilter(ItemEvent e) {
-        DefaultTableModel tm = null;
         switch(comboBox4.getSelectedIndex()){
             case 0:
-                tm = tml.setGroupModels(true);
+                tml.getGroupModel(true);
                 break;
             case 1:
-                tm = tml.setStudentModels(true);
+                tml.getStudentModel(true);
                 break;
         }
-        table2.setModel(tm);
         table2.updateUI();
     }
 
@@ -284,4 +283,11 @@ public class MainForm extends JFrame {
     JComboBox<String> comboBox4;
     JButton button1;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
+
+    public static void main(String[] args) {
+        MainForm form = new MainForm();
+        form.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        form.setVisible(true);
+        form.setResizable(false);
+    }
 }
