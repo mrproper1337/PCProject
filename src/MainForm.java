@@ -1,8 +1,6 @@
 import pojo.Group;
 import pojo.SportNormName;
 import pojo.Student;
-
-import java.awt.List;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
@@ -15,14 +13,9 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
-/*
- * Created by JFormDesigner on Sun Nov 09 21:32:23 EET 2014
- */
-
-
-
 /**
- * @author Ash Coopeer
+ * @author Nazar Rudenko
+ * https://github.com/mrproper1337
  */
 public class MainForm extends JFrame {
 
