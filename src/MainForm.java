@@ -1,4 +1,6 @@
+
 import pojo.Group;
+import pojo.SportNorm;
 import pojo.SportNormName;
 import pojo.Student;
 import java.awt.event.*;
@@ -9,10 +11,7 @@ import javax.swing.*;
 import javax.swing.GroupLayout;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
+import javax.swing.table.*;
 
 /**
  * @author Nazar Rudenko
@@ -29,15 +28,11 @@ public class MainForm extends JFrame {
         tml = new ModelLoader();
         listenerIsStopped = true;
         initComponents();
-        table1.setRowHeight(20);
-        table2.setRowHeight(28);
         tml.getGroupModel(false);
         tml.getGroupModel(true);
         tml.setGroupCombo();
         tml.setSNCombo();
-        //updateUI();
     }
-
     private void applyReadFormFilter(ItemEvent e) {
         if(!listenerIsStopped){
             if(comboBox1.getSelectedIndex() == 0)tml.getGroupModel(false);
@@ -53,23 +48,14 @@ public class MainForm extends JFrame {
             case 1:
                 tml.getStudentModel(true);
                 break;
+            case 2:
+                tml.getSNNameModel();
+                break;
+            case 3:
+                tml.getSportNormModel();
         }
         table2.updateUI();
     }
-
-    private void updateUI(){
-        table1.updateUI();
-        table2.updateUI();
-        comboBox1.updateUI();
-        comboBox3.updateUI();
-    }
-
-//    Групи
-//            Студенти
-//    Результати
-//            Нормативи
-//
-
     private class ModelLoader {
 
         java.util.List<Integer> groupsId,snId;
@@ -262,7 +248,197 @@ public class MainForm extends JFrame {
                 else table1.setModel(students_tm);
             }
         }
+        public void getSNNameModel(){
+            currentQuery="from SportNormName";
+            DefaultTableModel sportNormName_tm;
+            lastQuery = currentQuery;
+            final List sportNormNameList=ch.loadTable(currentQuery);
+            sportNormName_tm = new DefaultTableModel(){
 
+                @Override
+                public int getRowCount() {
+                    return sportNormNameList.size();
+                }
+
+                @Override
+                public int getColumnCount() {
+                    return 2;
+                }
+
+                @Override
+                public String getColumnName(int columnIndex) {
+                    if(columnIndex==0)return "ID";
+                    else return "Норматив";
+                }
+
+                @Override
+                public boolean isCellEditable(int rowIndex, int columnIndex) {
+                    return columnIndex == 1;
+                }
+
+                @Override
+                public Object getValueAt(int rowIndex, int columnIndex) {
+                    SportNormName ret;
+                    if(columnIndex==0){
+                        ret = (SportNormName)sportNormNameList.get(rowIndex);
+                        return ret.getSportNormNameId();
+                    }
+
+                    else{
+                        ret = (SportNormName)sportNormNameList.get(rowIndex);
+                        return ret.getSportNormName();
+                    }
+
+                }
+
+                @Override
+                public void setValueAt(Object aValue, int row, int column) {
+                    SportNormName obj =(SportNormName)sportNormNameList.get(row);
+                    obj.setSportNormName(aValue.toString());
+                    ch.updateInTable(obj);
+                }
+            };
+            table2.setModel(sportNormName_tm);
+        }
+        public void getSportNormModel(){
+            currentQuery="from SportNorm";
+            DefaultTableModel sportNorm_tm;
+            lastQuery = currentQuery;
+            final List sportNormList=ch.loadTable(currentQuery);
+            final List snnList=ch.loadTable("from SportNormName");
+            sportNorm_tm = new DefaultTableModel(){
+
+                @Override
+                public int getRowCount() {
+                    return sportNormList.size();
+                }
+
+                @Override
+                public int getColumnCount() {
+                    return 8;
+                }
+
+                @Override
+                public String getColumnName(int columnIndex) {
+                    switch(columnIndex) {
+                        case 0:
+                            return "ID";
+                        case 1:
+                            return "Норматив";
+                        case 2:
+                            return "Курс";
+                        case 3:
+                            return "Стать";
+                        case 4:
+                            return "Група здоров'я";
+                        case 5:
+                            return "Відмінно";
+                        case 6:
+                            return "Добре";
+                        case 7:
+                            return "Задовільно";
+                    }
+                    return "";
+                }
+
+                @Override
+                public boolean isCellEditable(int rowIndex, int columnIndex) {
+                    return columnIndex != 0;
+                }
+
+                @Override
+                public Object getValueAt(int rowIndex, int columnIndex) {
+                    SportNorm res=(SportNorm)sportNormList.get(rowIndex);
+                    switch(columnIndex){
+                        case 0:
+                            return res.getSportNormId();
+                        case 1:
+                            return res.getSportNormNameId().getSportNormName();
+                        case 2:
+                            return res.getCourseNorm();
+                        case 3:
+                            if(res.getGenderNorm()==0)
+                                return "хлопці";
+                            else
+                                return "дівчата";
+                        case 4:
+                            if(res.getHealthGroupNorm()==0)
+                                return "Звичайна";
+                            else
+                                return "Спецгрупа";
+                        case 5:
+                            return res.getExcellentMark();
+                        case 6:
+                            return res.getGoodMark();
+                        case 7:
+                            return res.getSatisfactorilyMark();
+                    }
+                    return "";
+                }
+
+                @Override
+                public void setValueAt(Object aValue, int row, int column) {
+                    SportNorm obj =(SportNorm)sportNormList.get(row);
+                    switch(column){
+                        case 1:
+                            for(SportNormName snn:(List<SportNormName>)snnList)
+                                if(snn.getSportNormName().equals(aValue))
+                                    obj.setSportNormNameId(snn);
+                            break;
+                        case 2:
+                            obj.setCourseNorm(Integer.parseInt(aValue.toString()));
+                            break;
+                        case 3:
+                            if(aValue=="хлопці")
+                                obj.setGenderNorm(0);
+                            else
+                                obj.setGenderNorm(1);
+                            break;
+                        case 4:
+                            if(aValue=="Звичайна")
+                                obj.setHealthGroupNorm(0);
+                            else
+                                obj.setHealthGroupNorm(1);
+                            break;
+                        case 5:
+                            obj.setExcellentMark(Double.parseDouble(aValue.toString()));
+                            break;
+                        case 6:
+                            obj.setGoodMark(Double.parseDouble(aValue.toString()));
+                            break;
+                        case 7:
+                            obj.setSatisfactorilyMark(Double.parseDouble(aValue.toString()));
+                            break;
+                    }
+                    ch.updateInTable(obj);
+                }
+            };
+            table2.setModel(sportNorm_tm);
+
+            ArrayList cbItem = new ArrayList();
+            for(SportNormName snn:(List<SportNormName>)snnList)
+                cbItem.add(snn.getSportNormName());
+            initInsertedCombos(table2,1,cbItem);
+            cbItem.clear();
+
+            cbItem.add(1);
+            cbItem.add(2);
+            cbItem.add(3);
+            cbItem.add(4);
+            initInsertedCombos(table2, 2, cbItem, 40);
+            cbItem.clear();
+
+            cbItem.add("хлопці");
+            cbItem.add("дівчата");
+            initInsertedCombos(table2,3,cbItem);
+            cbItem.clear();
+
+            cbItem.add("Звичайна");
+            cbItem.add("Спецгрупа");
+            initInsertedCombos(table2,4,cbItem);
+            cbItem.clear();
+
+        }
 
         private void initInsertedCombos(JTable table,int columnIndex,ArrayList<String> rows){//after TM init
             TableColumn column;
@@ -270,6 +446,12 @@ public class MainForm extends JFrame {
             column.setCellRenderer(new ComboBoxCellRenderer(rows));
             column.setCellEditor(new ComboBoxCellEditor(rows));
 
+        }
+        private void initInsertedCombos(JTable table,int columnIndex,ArrayList<String> rows,int width){
+            TableColumn column;
+            column = table.getColumnModel().getColumn(columnIndex);
+            column.setCellRenderer(new ComboBoxCellRenderer(rows,width));
+            column.setCellEditor(new ComboBoxCellEditor(rows,width));
         }
         public void setGroupCombo(){
             final java.util.List groupList=ch.loadTable("from Group");
@@ -295,9 +477,9 @@ public class MainForm extends JFrame {
         }
 
         class ComboBoxPanel extends JPanel {
-            ArrayList<String> comboItems = null;
+            ArrayList comboItems = null;
             protected JComboBox comboBox;
-            public ComboBoxPanel(ArrayList<String> comboItems) {
+            public ComboBoxPanel(ArrayList comboItems) {
 
                 this.comboItems = comboItems;
                 comboBox = new JComboBox(comboItems.toArray()){
@@ -309,10 +491,25 @@ public class MainForm extends JFrame {
                 setOpaque(true);
                 add(comboBox);
             }
+            public ComboBoxPanel(ArrayList comboItems, final int width) {
+
+                this.comboItems = comboItems;
+                comboBox = new JComboBox(comboItems.toArray()){
+                    @Override public Dimension getPreferredSize() {
+                        Dimension d = super.getPreferredSize();
+                        return new Dimension(width, d.height-5);
+                    }
+                };
+                setOpaque(true);
+                add(comboBox);
+            }
         }
         class ComboBoxCellRenderer extends ComboBoxPanel implements TableCellRenderer {
-            public ComboBoxCellRenderer(ArrayList<String> comboItems) {
+            public ComboBoxCellRenderer(ArrayList comboItems) {
                 super(comboItems);
+            }
+            public ComboBoxCellRenderer(ArrayList comboItems,int width) {
+                super(comboItems,width);
             }
             @Override public Component getTableCellRendererComponent(
                     JTable table, Object value, boolean isSelected,
@@ -325,8 +522,21 @@ public class MainForm extends JFrame {
             }
         }
         class ComboBoxCellEditor   extends ComboBoxPanel implements TableCellEditor {
-            public ComboBoxCellEditor(ArrayList<String> comboItems) {
+            public ComboBoxCellEditor(ArrayList comboItems) {
                 super(comboItems);
+                comboBox.addActionListener(new ActionListener() {
+                    @Override public void actionPerformed(ActionEvent e) {
+                        fireEditingStopped();
+                    }
+                });
+                addMouseListener(new MouseAdapter() {
+                    @Override public void mousePressed(MouseEvent e) {
+                        fireEditingStopped();
+                    }
+                });
+            }
+            public ComboBoxCellEditor(ArrayList comboItems,int width) {
+                super(comboItems,width);
                 comboBox.addActionListener(new ActionListener() {
                     @Override public void actionPerformed(ActionEvent e) {
                         fireEditingStopped();
@@ -442,6 +652,12 @@ public class MainForm extends JFrame {
 
                 //======== scrollPane1 ========
                 {
+
+                    //---- table1 ----
+                    table1.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
+                    table1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                    table1.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+                    table1.setRowHeight(20);
                     scrollPane1.setViewportView(table1);
                 }
 
@@ -496,21 +712,21 @@ public class MainForm extends JFrame {
                 panel1Layout.setHorizontalGroup(
                     panel1Layout.createParallelGroup()
                         .addGroup(panel1Layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addGroup(panel1Layout.createParallelGroup()
-                                        .addGroup(panel1Layout.createSequentialGroup()
-                                                .addComponent(scrollPane1, GroupLayout.DEFAULT_SIZE, 469, Short.MAX_VALUE)
-                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED))
-                                        .addGroup(panel1Layout.createSequentialGroup()
-                                                .addComponent(comboBox1, GroupLayout.PREFERRED_SIZE, 173, GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(comboBox2, GroupLayout.PREFERRED_SIZE, 173, GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(checkBox1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 22, Short.MAX_VALUE)))
-                                .addGroup(panel1Layout.createParallelGroup()
-                                        .addComponent(comboBox3, GroupLayout.PREFERRED_SIZE, 173, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(panel3, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+                            .addContainerGap()
+                            .addGroup(panel1Layout.createParallelGroup()
+                                .addGroup(panel1Layout.createSequentialGroup()
+                                    .addComponent(scrollPane1, GroupLayout.DEFAULT_SIZE, 457, Short.MAX_VALUE)
+                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED))
+                                .addGroup(panel1Layout.createSequentialGroup()
+                                    .addComponent(comboBox1, GroupLayout.PREFERRED_SIZE, 173, GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(comboBox2, GroupLayout.PREFERRED_SIZE, 173, GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(checkBox1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 10, Short.MAX_VALUE)))
+                            .addGroup(panel1Layout.createParallelGroup()
+                                .addComponent(comboBox3, GroupLayout.PREFERRED_SIZE, 173, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(panel3, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
                 );
                 panel1Layout.setVerticalGroup(
                     panel1Layout.createParallelGroup()
@@ -521,14 +737,14 @@ public class MainForm extends JFrame {
                                 .addComponent(panel3, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                             .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                             .addGroup(panel1Layout.createParallelGroup()
-                                    .addComponent(comboBox1)
+                                .addComponent(comboBox1)
                                 .addComponent(checkBox1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addGroup(GroupLayout.Alignment.TRAILING, panel1Layout.createSequentialGroup()
-                                            .addGap(0, 0, Short.MAX_VALUE)
-                                            .addComponent(comboBox2, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE))
+                                .addGroup(GroupLayout.Alignment.TRAILING, panel1Layout.createSequentialGroup()
+                                    .addGap(0, 0, Short.MAX_VALUE)
+                                    .addComponent(comboBox2, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE))
                                 .addGroup(panel1Layout.createSequentialGroup()
-                                        .addComponent(comboBox3, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
-                                        .addGap(0, 0, Short.MAX_VALUE)))
+                                    .addComponent(comboBox3, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
+                                    .addGap(0, 0, Short.MAX_VALUE)))
                             .addContainerGap())
                 );
             }
@@ -539,6 +755,11 @@ public class MainForm extends JFrame {
 
                 //======== scrollPane2 ========
                 {
+
+                    //---- table2 ----
+                    table2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                    table2.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+                    table2.setRowHeight(28);
                     scrollPane2.setViewportView(table2);
                 }
 
@@ -546,8 +767,9 @@ public class MainForm extends JFrame {
                 comboBox4.setModel(new DefaultComboBoxModel<>(new String[] {
                     "\u0413\u0440\u0443\u043f\u0438",
                     "\u0421\u0442\u0443\u0434\u0435\u043d\u0442\u0438",
-                    "\u0420\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442\u0438",
-                    "\u041d\u043e\u0440\u043c\u0430\u0442\u0438\u0432\u0438"
+                    "\u041d\u043e\u0440\u043c\u0430\u0442\u0438\u0432\u0438(\u041f\u0435\u0440\u0435\u043b\u0456\u043a)",
+                    "\u041d\u043e\u0440\u043c\u0430\u0442\u0438\u0432\u0438(\u0412\u0438\u043c\u043e\u0433\u0438)",
+                    "\u0420\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442\u0438"
                 }));
                 comboBox4.addItemListener(new ItemListener() {
                     @Override
@@ -570,8 +792,8 @@ public class MainForm extends JFrame {
                                     .addComponent(comboBox4, GroupLayout.PREFERRED_SIZE, 173, GroupLayout.PREFERRED_SIZE)
                                     .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                     .addComponent(button1, GroupLayout.PREFERRED_SIZE, 211, GroupLayout.PREFERRED_SIZE)
-                                    .addGap(0, 555, Short.MAX_VALUE))
-                                .addComponent(scrollPane2, GroupLayout.DEFAULT_SIZE, 945, Short.MAX_VALUE))
+                                    .addGap(0, 543, Short.MAX_VALUE))
+                                .addComponent(scrollPane2, GroupLayout.DEFAULT_SIZE, 933, Short.MAX_VALUE))
                             .addContainerGap())
                 );
                 panel2Layout.setVerticalGroup(
@@ -592,12 +814,15 @@ public class MainForm extends JFrame {
         GroupLayout contentPaneLayout = new GroupLayout(contentPane);
         contentPane.setLayout(contentPaneLayout);
         contentPaneLayout.setHorizontalGroup(
-            contentPaneLayout.createParallelGroup()
-                .addComponent(tabbedPane1)
+                contentPaneLayout.createParallelGroup()
+                        .addGroup(GroupLayout.Alignment.TRAILING, contentPaneLayout.createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(tabbedPane1)
+                    .addContainerGap())
         );
         contentPaneLayout.setVerticalGroup(
             contentPaneLayout.createParallelGroup()
-                .addComponent(tabbedPane1)
+                .addComponent(tabbedPane1, GroupLayout.Alignment.TRAILING)
         );
         pack();
         setLocationRelativeTo(getOwner());

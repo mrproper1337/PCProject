@@ -8,7 +8,6 @@
       <column name="resultId" sqlType="INTEGER" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
       <column name="sportNormId" sqlType="INTEGER" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
       <column name="studentId" sqlType="INTEGER" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
-      <column name="course" sqlType="INTEGER" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
       <column name="result" sqlType="REAL" precision="2000000000" scale="10" nullable="false" jdbcType="6"/>
       <primary-key columns="resultId"/>
       <foreign-key name="#FAKE_result_1" columns="studentId" ref-table="student" ref-schema="" ref-catalog="" ref-columns="studentID" update-rule="3" delete-rule="3" deferrability="1"/>
