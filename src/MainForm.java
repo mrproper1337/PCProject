@@ -4,6 +4,7 @@ import pojo.Student;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 import javax.swing.*;
 import javax.swing.GroupLayout;
 import javax.swing.event.CellEditorListener;
@@ -29,7 +30,7 @@ public class MainForm extends JFrame {
         listenerIsStopped = true;
         initComponents();
         table1.setRowHeight(20);
-        table2.setRowHeight(30);
+        table2.setRowHeight(28);
         tml.getGroupModel(false);
         tml.getGroupModel(true);
         tml.setGroupCombo();
@@ -151,6 +152,7 @@ public class MainForm extends JFrame {
                 DefaultTableModel students_tm;
                 lastQuery = currentQuery;
                 final java.util.List studentList=ch.loadTable(currentQuery);
+                final List groupList=ch.loadTable("from Group");
                 students_tm = new DefaultTableModel(){
 
                     @Override
@@ -200,10 +202,10 @@ public class MainForm extends JFrame {
                                 else
                                     return "дівчина";
                             case 3:
-                                if(res.getHealthGroup()==1)
-                                    return "Спецгрупа";
-                                else
+                                if(res.getHealthGroup()==0)
                                     return "Звичайна";
+                                else
+                                    return "Спецгрупа";
                             case 4:
                                 return res.getGroupId().getGroupName();
                         }
@@ -222,18 +224,52 @@ public class MainForm extends JFrame {
                                     obj.setGender(0);
                                 else
                                     obj.setGender(1);
+                                break;
+                            case 3:
+                                if(aValue=="Звичайна")
+                                    obj.setHealthGroup(0);
+                                else
+                                    obj.setHealthGroup(1);
+                                break;
+                            case 4:
+                                for(Group g:(List<Group>)groupList)
+                                    if(g.getGroupName().equals(aValue))
+                                        obj.setGroupId(g);
+
                         }
                         ch.updateInTable(obj);
                     }
                 };
                 if(editable){
                     table2.setModel(students_tm);
-                    TableColumn genderColumn = table2.getColumnModel().getColumn(2);
-                    genderColumn.setCellRenderer(new ComboBoxCellRenderer(new String[] {"хлопець","дівчина"}));
-                    genderColumn.setCellEditor(new ComboBoxCellEditor(new String[] {"хлопець","дівчина"}));
+
+                    ArrayList<String> cbItem = new ArrayList();
+                    cbItem.add("хлопець");
+                    cbItem.add("дівчина");
+                    initInsertedCombos(table2,2,cbItem);
+                    cbItem.clear();
+
+                    cbItem.add("Звичайна");
+                    cbItem.add("Спецгрупа");
+                    initInsertedCombos(table2,3,cbItem);
+                    cbItem.clear();
+
+                    for(Group a:(List<Group>)groupList)
+                        cbItem.add(a.getGroupName());
+                    initInsertedCombos(table2,4,cbItem);
+                    cbItem.clear();
                 }
                 else table1.setModel(students_tm);
             }
+        }
+
+
+        private void initInsertedCombos(JTable table,int columnIndex,ArrayList<String> rows){//after TM init
+            TableColumn column;
+            column = table.getColumnModel().getColumn(columnIndex);
+            column.setCellRenderer(new ComboBoxCellRenderer(rows));
+            column.setCellEditor(new ComboBoxCellEditor(rows));
+
         }
         public void setGroupCombo(){
             final java.util.List groupList=ch.loadTable("from Group");
@@ -259,32 +295,24 @@ public class MainForm extends JFrame {
         }
 
         class ComboBoxPanel extends JPanel {
-            String[] comboItems = null;
-            protected JComboBox<String> comboBox;
-            public ComboBoxPanel(String[] comboItems) {
+            ArrayList<String> comboItems = null;
+            protected JComboBox comboBox;
+            public ComboBoxPanel(ArrayList<String> comboItems) {
 
                 this.comboItems = comboItems;
-                comboBox = new JComboBox<String>(comboItems) {
+                comboBox = new JComboBox(comboItems.toArray()){
                     @Override public Dimension getPreferredSize() {
                         Dimension d = super.getPreferredSize();
-                        return new Dimension(d.width*2, d.height);
+                        return new Dimension(140, d.height-5);
                     }
                 };
-
                 setOpaque(true);
                 add(comboBox);
-
-
             }
-
-
-
-
         }
         class ComboBoxCellRenderer extends ComboBoxPanel implements TableCellRenderer {
-            public ComboBoxCellRenderer(String[] comboItems) {
+            public ComboBoxCellRenderer(ArrayList<String> comboItems) {
                 super(comboItems);
-                //setName("Table.cellRenderer");
             }
             @Override public Component getTableCellRendererComponent(
                     JTable table, Object value, boolean isSelected,
@@ -297,9 +325,8 @@ public class MainForm extends JFrame {
             }
         }
         class ComboBoxCellEditor   extends ComboBoxPanel implements TableCellEditor {
-            public ComboBoxCellEditor(String[] comboItems) {
+            public ComboBoxCellEditor(ArrayList<String> comboItems) {
                 super(comboItems);
-                //super.m = comboItems;
                 comboBox.addActionListener(new ActionListener() {
                     @Override public void actionPerformed(ActionEvent e) {
                         fireEditingStopped();
