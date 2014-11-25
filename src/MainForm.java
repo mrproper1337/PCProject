@@ -82,59 +82,57 @@ public class MainForm extends JFrame {
 
         public void getGroupModel(final boolean editable){
             currentQuery="from Group";
-            if(!lastQuery.equals(currentQuery)){
-                System.out.println("getGroupModel");
-                DefaultTableModel groups_tm;
-                lastQuery = currentQuery;
-                final java.util.List groupList=ch.loadTable(currentQuery);
-                groups_tm = new DefaultTableModel(){
+            System.out.println("getGroupModel");
+            DefaultTableModel groups_tm;
+            lastQuery = currentQuery;
+            final java.util.List groupList=ch.loadTable(currentQuery);
+            groups_tm = new DefaultTableModel(){
 
-                    @Override
-                    public int getRowCount() {
-                        return groupList.size();
+                @Override
+                public int getRowCount() {
+                    return groupList.size();
+                }
+
+                @Override
+                public int getColumnCount() {
+                    return 2;
+                }
+
+                @Override
+                public String getColumnName(int columnIndex) {
+                    if(columnIndex==0)return "ID";
+                    else return "Група";
+                }
+
+                @Override
+                public boolean isCellEditable(int rowIndex, int columnIndex) {
+                    return editable && columnIndex == 1;
+                }
+
+                @Override
+                public Object getValueAt(int rowIndex, int columnIndex) {
+                    Group ret;
+                    if(columnIndex==0){
+                        ret = (pojo.Group)groupList.get(rowIndex);
+                        return ret.getGroupId();
                     }
 
-                    @Override
-                    public int getColumnCount() {
-                        return 2;
+                    else{
+                        ret = (pojo.Group)groupList.get(rowIndex);
+                        return ret.getGroupName();
                     }
 
-                    @Override
-                    public String getColumnName(int columnIndex) {
-                        if(columnIndex==0)return "ID";
-                        else return "Група";
-                    }
+                }
 
-                    @Override
-                    public boolean isCellEditable(int rowIndex, int columnIndex) {
-                        return editable && columnIndex == 1;
-                    }
-
-                    @Override
-                    public Object getValueAt(int rowIndex, int columnIndex) {
-                        Group ret;
-                        if(columnIndex==0){
-                            ret = (pojo.Group)groupList.get(rowIndex);
-                            return ret.getGroupId();
-                        }
-
-                        else{
-                            ret = (pojo.Group)groupList.get(rowIndex);
-                            return ret.getGroupName();
-                        }
-
-                    }
-
-                    @Override
-                    public void setValueAt(Object aValue, int row, int column) {
-                        Group obj =(Group)groupList.get(row);
-                        obj.setGroupName(aValue.toString());
-                        ch.updateInTable(obj);
-                    }
-                };
-                if(editable)table2.setModel(groups_tm);
-                else table1.setModel(groups_tm);
-            }
+                @Override
+                public void setValueAt(Object aValue, int row, int column) {
+                    Group obj =(Group)groupList.get(row);
+                    obj.setGroupName(aValue.toString());
+                    ch.updateInTable(obj);
+                }
+            };
+            if(editable)table2.setModel(groups_tm);
+            else table1.setModel(groups_tm);
         }
         public void getStudentModel(final boolean editable){
             int check = checkBox1.isSelected() ? 1 : 0;
@@ -197,13 +195,10 @@ public class MainForm extends JFrame {
                             case 1:
                                 return res.getName();
                             case 2:
-                                if(!editable){
-                                    if(res.getGender()==0)
-                                        return "хлопець";
-                                    else
-                                        return "дівчина";
-                                }
-                                else break;
+                                if(res.getGender()==0)
+                                    return "хлопець";
+                                else
+                                    return "дівчина";
                             case 3:
                                 if(res.getHealthGroup()==1)
                                     return "Спецгрупа";
@@ -223,6 +218,10 @@ public class MainForm extends JFrame {
                                 obj.setName(aValue.toString());
                                 break;
                             case 2:
+                                if(aValue=="хлопець")
+                                    obj.setGender(0);
+                                else
+                                    obj.setGender(1);
                         }
                         ch.updateInTable(obj);
                     }
@@ -260,35 +259,39 @@ public class MainForm extends JFrame {
         }
 
         class ComboBoxPanel extends JPanel {
-            String[] comboItems;
+            String[] comboItems = null;
+            protected JComboBox<String> comboBox;
             public ComboBoxPanel(String[] comboItems) {
-                super();
+
                 this.comboItems = comboItems;
+                comboBox = new JComboBox<String>(comboItems) {
+                    @Override public Dimension getPreferredSize() {
+                        Dimension d = super.getPreferredSize();
+                        return new Dimension(d.width*2, d.height);
+                    }
+                };
+
                 setOpaque(true);
                 add(comboBox);
+
+
             }
 
 
-            protected JComboBox<String> comboBox = new JComboBox<String>(comboItems) {
-                @Override public Dimension getPreferredSize() {
-                    Dimension d = super.getPreferredSize();
-                    return new Dimension(d.width, d.height);
-                }
-            };
+
 
         }
         class ComboBoxCellRenderer extends ComboBoxPanel implements TableCellRenderer {
             public ComboBoxCellRenderer(String[] comboItems) {
                 super(comboItems);
-                //super.m = comboItems;
-                setName("Table.cellRenderer");
+                //setName("Table.cellRenderer");
             }
             @Override public Component getTableCellRendererComponent(
                     JTable table, Object value, boolean isSelected,
                     boolean hasFocus, int row, int column) {
                 setBackground(isSelected?table.getSelectionBackground():table.getBackground());
                 if(value!=null) {
-                    comboBox.setSelectedIndex((Integer)value);
+                    comboBox.setSelectedItem(value);
                 }
                 return this;
             }
@@ -308,8 +311,7 @@ public class MainForm extends JFrame {
                     }
                 });
             }
-            @Override public Component getTableCellEditorComponent(
-                    JTable table, Object value, boolean isSelected, int row, int column) {
+            @Override public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
                 this.setBackground(table.getSelectionBackground());
                 comboBox.setSelectedItem(value);
                 return this;
