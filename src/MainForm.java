@@ -32,6 +32,7 @@ public class MainForm extends JFrame {
         tml.getGroupModel(true);
         tml.setGroupCombo();
         tml.setSNCombo();
+        table2.getColumnModel().getColumn(0).setWidth(15);
     }
     private void applyReadFormFilter(ItemEvent e) {
         if(!listenerIsStopped){
@@ -418,7 +419,7 @@ public class MainForm extends JFrame {
             ArrayList cbItem = new ArrayList();
             for(SportNormName snn:(List<SportNormName>)snnList)
                 cbItem.add(snn.getSportNormName());
-            initInsertedCombos(table2,1,cbItem);
+            initInsertedCombos(table2,1,cbItem,160);
             cbItem.clear();
 
             cbItem.add(1);
@@ -445,6 +446,7 @@ public class MainForm extends JFrame {
             column = table.getColumnModel().getColumn(columnIndex);
             column.setCellRenderer(new ComboBoxCellRenderer(rows));
             column.setCellEditor(new ComboBoxCellEditor(rows));
+
 
         }
         private void initInsertedCombos(JTable table,int columnIndex,ArrayList<String> rows,int width){
@@ -654,7 +656,6 @@ public class MainForm extends JFrame {
                 {
 
                     //---- table1 ----
-                    table1.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
                     table1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                     table1.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
                     table1.setRowHeight(20);
@@ -760,6 +761,11 @@ public class MainForm extends JFrame {
                     table2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                     table2.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
                     table2.setRowHeight(28);
+                    table2.setComponentPopupMenu(null);
+                    table2.setRowSorter(null);
+                    table2.setMinimumSize(new Dimension(15, 28));
+                    table2.setAlignmentX(0.0F);
+                    table2.setAlignmentY(0.0F);
                     scrollPane2.setViewportView(table2);
                 }
 
@@ -791,9 +797,8 @@ public class MainForm extends JFrame {
                                 .addGroup(panel2Layout.createSequentialGroup()
                                     .addComponent(comboBox4, GroupLayout.PREFERRED_SIZE, 173, GroupLayout.PREFERRED_SIZE)
                                     .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(button1, GroupLayout.PREFERRED_SIZE, 211, GroupLayout.PREFERRED_SIZE)
-                                    .addGap(0, 543, Short.MAX_VALUE))
-                                .addComponent(scrollPane2, GroupLayout.DEFAULT_SIZE, 933, Short.MAX_VALUE))
+                                    .addComponent(button1, GroupLayout.PREFERRED_SIZE, 211, GroupLayout.PREFERRED_SIZE))
+                                .addComponent(scrollPane2, GroupLayout.PREFERRED_SIZE, 933, GroupLayout.PREFERRED_SIZE))
                             .addContainerGap())
                 );
                 panel2Layout.setVerticalGroup(
@@ -814,8 +819,8 @@ public class MainForm extends JFrame {
         GroupLayout contentPaneLayout = new GroupLayout(contentPane);
         contentPane.setLayout(contentPaneLayout);
         contentPaneLayout.setHorizontalGroup(
-                contentPaneLayout.createParallelGroup()
-                        .addGroup(GroupLayout.Alignment.TRAILING, contentPaneLayout.createSequentialGroup()
+            contentPaneLayout.createParallelGroup()
+                .addGroup(GroupLayout.Alignment.TRAILING, contentPaneLayout.createSequentialGroup()
                     .addContainerGap()
                     .addComponent(tabbedPane1)
                     .addContainerGap())

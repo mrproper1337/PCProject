@@ -25,7 +25,6 @@ new FormModel {
 						name: "scrollPane1"
 						add( new FormComponent( "javax.swing.JTable" ) {
 							name: "table1"
-							"autoResizeMode": 1
 							"selectionMode": 0
 							"componentOrientation": sfield java.awt.ComponentOrientation LEFT_TO_RIGHT
 							"rowHeight": 20
@@ -64,7 +63,7 @@ new FormModel {
 					"title": "Перегляд"
 				} )
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-					"$horizontalGroup": "par l {seq {space :::p, par l {seq {comp comboBox4:::p:173:p, space :::p, comp button1:::p:211:p, space :0:543:x}, comp scrollPane2::::933:x}, space :::p}}"
+					"$horizontalGroup": "par l {seq {space :::p, par l {seq {comp comboBox4:::p:173:p, space :::p, comp button1:::p:211:p}, comp scrollPane2:::p:933:p}, space :::p}}"
 					"$verticalGroup": "par l {seq l {space :::p, comp scrollPane2:::p::p, space :::p, par l:::p {comp comboBox4:::::x, comp button1:::::x}, space :::x}}"
 				} ) {
 					name: "panel2"
@@ -75,6 +74,11 @@ new FormModel {
 							"selectionMode": 0
 							"componentOrientation": sfield java.awt.ComponentOrientation LEFT_TO_RIGHT
 							"rowHeight": 28
+							"componentPopupMenu": sfield com.jformdesigner.model.FormObject NULL_VALUE
+							"rowSorter": sfield com.jformdesigner.model.FormObject NULL_VALUE
+							"minimumSize": new java.awt.Dimension( 15, 28 )
+							"alignmentX": 0.0f
+							"alignmentY": 0.0f
 							auxiliary() {
 								"JavaCodeGenerator.variableModifiers": 1
 							}
