@@ -29,7 +29,7 @@ public class MainForm extends JFrame {
         listenerIsStopped = true;
         initComponents();
         table1.setRowHeight(20);
-        table2.setRowHeight(20);
+        table2.setRowHeight(30);
         tml.getGroupModel(false);
         tml.getGroupModel(true);
         tml.setGroupCombo();
@@ -230,9 +230,8 @@ public class MainForm extends JFrame {
                 if(editable){
                     table2.setModel(students_tm);
                     TableColumn genderColumn = table2.getColumnModel().getColumn(2);
-                    genderColumn.setCellRenderer(new ComboBoxCellRenderer());
-                    genderColumn.setCellEditor(new ComboBoxCellEditor());
-
+                    genderColumn.setCellRenderer(new ComboBoxCellRenderer(new String[] {"хлопець","дівчина"}));
+                    genderColumn.setCellEditor(new ComboBoxCellEditor(new String[] {"хлопець","дівчина"}));
                 }
                 else table1.setModel(students_tm);
             }
@@ -261,39 +260,43 @@ public class MainForm extends JFrame {
         }
 
         class ComboBoxPanel extends JPanel {
-            private String[] m = new String[] {"хлопець","дівчина"};
-            protected JComboBox<String> comboBox = new JComboBox<String>(m) {
-                @Override public Dimension getPreferredSize() {
-                    Dimension d = super.getPreferredSize();
-                    return new Dimension(40, d.height);
-                }
-            };
-            public ComboBoxPanel() {
+            String[] comboItems;
+            public ComboBoxPanel(String[] comboItems) {
                 super();
+                this.comboItems = comboItems;
                 setOpaque(true);
-                comboBox.setEditable(true);
                 add(comboBox);
             }
+
+
+            protected JComboBox<String> comboBox = new JComboBox<String>(comboItems) {
+                @Override public Dimension getPreferredSize() {
+                    Dimension d = super.getPreferredSize();
+                    return new Dimension(d.width, d.height);
+                }
+            };
+
         }
         class ComboBoxCellRenderer extends ComboBoxPanel implements TableCellRenderer {
-            public ComboBoxCellRenderer() {
-                super();
+            public ComboBoxCellRenderer(String[] comboItems) {
+                super(comboItems);
+                //super.m = comboItems;
                 setName("Table.cellRenderer");
             }
             @Override public Component getTableCellRendererComponent(
                     JTable table, Object value, boolean isSelected,
                     boolean hasFocus, int row, int column) {
-                setBackground(isSelected?table.getSelectionBackground()
-                        :table.getBackground());
+                setBackground(isSelected?table.getSelectionBackground():table.getBackground());
                 if(value!=null) {
-                    comboBox.setSelectedItem(value);
+                    comboBox.setSelectedIndex((Integer)value);
                 }
                 return this;
             }
         }
         class ComboBoxCellEditor   extends ComboBoxPanel implements TableCellEditor {
-            public ComboBoxCellEditor() {
-                super();
+            public ComboBoxCellEditor(String[] comboItems) {
+                super(comboItems);
+                //super.m = comboItems;
                 comboBox.addActionListener(new ActionListener() {
                     @Override public void actionPerformed(ActionEvent e) {
                         fireEditingStopped();
