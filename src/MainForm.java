@@ -32,7 +32,6 @@ public class MainForm extends JFrame {
         tml.getGroupModel(true);
         tml.setGroupCombo();
         tml.setSNCombo();
-        table2.getColumnModel().getColumn(0).setWidth(15);
     }
     private void applyReadFormFilter(ItemEvent e) {
         if(!listenerIsStopped){
@@ -44,12 +43,20 @@ public class MainForm extends JFrame {
     private void applyWriteFormFilter(ItemEvent e) {
         if(comboBox4.getSelectedIndex()==4){
             comboBox5.setEnabled(true);
-            for(Group g:(List<Group>)tml.groupList)
-                comboBox5.addItem(g.getGroupName());
+            comboBox6.setEnabled(true);
+            listenerIsStopped = true;
+            comboBox6.removeAllItems();
+            for(Student s:(List<Student>)ch.loadTable("from Student where groupId = "+tml.groupsId.get(0))){
+                comboBox6.addItem(s.getName());
+                tml.studentsId.clear();
+                tml.studentsId.add(s.getStudentId());
+            }
+            listenerIsStopped = false;
+
         }
         else{
-            if(comboBox5.getItemCount()!=0)comboBox5.removeAllItems();
             comboBox5.setEnabled(false);
+            comboBox6.setEnabled(false);
         }
         switch(comboBox4.getSelectedIndex()){
             case 0:
@@ -65,14 +72,33 @@ public class MainForm extends JFrame {
                 tml.getSportNormModel();
                 break;
             case 4:
-                tml.getResultModel(comboBox5.getSelectedIndex());
+                tml.getResultModel(tml.studentsId.get(0));
                 break;
         }
         table2.updateUI();
     }
+    private void applyResultFilter(ItemEvent e) {
+        if(!listenerIsStopped){
+            if(e.getItem()==comboBox5){
+                listenerIsStopped = true;
+                comboBox6.removeAllItems();
+                for(Student s:(List<Student>)ch.loadTable("from Student where " +
+                                "groupId = "+tml.groupsId.get(comboBox5.getSelectedIndex())
+                ))
+                {
+
+                    comboBox6.addItem(s.getName());
+                    tml.studentsId.clear();
+                    tml.studentsId.add(s.getStudentId());
+                }
+                listenerIsStopped = false;
+            }
+            else tml.getResultModel(tml.studentsId.get(comboBox6.getSelectedIndex()));
+        }
+    }
     private class ModelLoader {
 
-        List<Integer> groupsId,snId;
+        List<Integer> groupsId,snId,studentsId;
         final List groupList, sportNormNameList;
         String lastQuery,currentQuery;
 
@@ -132,6 +158,7 @@ public class MainForm extends JFrame {
                     Group obj =(Group)groupList.get(row);
                     obj.setGroupName(aValue.toString());
                     ch.updateInTable(obj);
+                    setGroupCombo();
                 }
             };
             if(editable)table2.setModel(groups_tm);
@@ -311,6 +338,7 @@ public class MainForm extends JFrame {
                     SportNormName obj =(SportNormName)sportNormNameList.get(row);
                     obj.setSportNormName(aValue.toString());
                     ch.updateInTable(obj);
+                    setSNCombo();
                 }
             };
             table2.setModel(sportNormName_tm);
@@ -453,23 +481,22 @@ public class MainForm extends JFrame {
             cbItem.clear();
 
         }
-        public void getResultModel(int groupId){
-            currentQuery="from Result where studentId = " +
-                    "(select studentId from Student where groupId = "+groupId+")" ;
+        public void getResultModel(int studentId){
+            currentQuery="from Result where studentId = "+studentId;
             DefaultTableModel result_tm;
             lastQuery = currentQuery;
-            final List sportNormList=ch.loadTable(currentQuery);
+            final List resultList=ch.loadTable(currentQuery);
 
             result_tm = new DefaultTableModel(){
 
                 @Override
                 public int getRowCount() {
-                    return sportNormList.size();
+                    return resultList.size();
                 }
 
                 @Override
                 public int getColumnCount() {
-                    return 8;
+                    return 3;
                 }
 
                 @Override
@@ -480,17 +507,7 @@ public class MainForm extends JFrame {
                         case 1:
                             return "Норматив";
                         case 2:
-                            return "Курс";
-                        case 3:
-                            return "Стать";
-                        case 4:
-                            return "Група здоров'я";
-                        case 5:
-                            return "Відмінно";
-                        case 6:
-                            return "Добре";
-                        case 7:
-                            return "Задовільно";
+                            return "Результат";
                     }
                     return "";
                 }
@@ -502,7 +519,7 @@ public class MainForm extends JFrame {
 
                 @Override
                 public Object getValueAt(int rowIndex, int columnIndex) {
-                    SportNorm res=(SportNorm)sportNormList.get(rowIndex);
+                    SportNorm res=(SportNorm)resultList.get(rowIndex);
                     switch(columnIndex){
                         case 0:
                             return res.getSportNormId();
@@ -532,12 +549,12 @@ public class MainForm extends JFrame {
 
                 @Override
                 public void setValueAt(Object aValue, int row, int column) {
-                    SportNorm obj =(SportNorm)sportNormList.get(row);
+                    SportNorm obj =(SportNorm)resultList.get(row);
                     switch(column){
                         case 1:
-                            for(SportNormName snn:(List<SportNormName>)snnList)
-                                if(snn.getSportNormName().equals(aValue))
-                                    obj.setSportNormNameId(snn);
+//                            for(SportNormName snn:(List<SportNormName>)snnList)
+//                                if(snn.getSportNormName().equals(aValue))
+//                                    obj.setSportNormNameId(snn);
                             break;
                         case 2:
                             obj.setCourseNorm(Integer.parseInt(aValue.toString()));
@@ -608,9 +625,11 @@ public class MainForm extends JFrame {
             listenerIsStopped=true;
             groupsId.clear();
             comboBox1.removeAllItems();
+            comboBox5.removeAllItems();
             comboBox1.addItem("По групам");
             for(Group a:(java.util.List<Group>)groupList){
                 comboBox1.addItem(a.getGroupName());
+                comboBox5.addItem(a.getGroupName());
                 groupsId.add(a.getGroupId());
             }
             listenerIsStopped=false;
@@ -618,9 +637,7 @@ public class MainForm extends JFrame {
         public void setSNCombo(){
             snId.clear();
             comboBox3.removeAllItems();
-            System.out.println("setSNModels");
-            java.util.List snList=ch.loadTable("from SportNormName");
-            for(SportNormName a:(java.util.List<SportNormName>)snList){
+            for(SportNormName a:(java.util.List<SportNormName>)sportNormNameList){
                 comboBox3.addItem(a.getSportNormName());
                 snId.add(a.getSportNormNameId());
             }
@@ -791,6 +808,7 @@ public class MainForm extends JFrame {
         comboBox4 = new JComboBox<>();
         button1 = new JButton();
         comboBox5 = new JComboBox();
+        comboBox6 = new JComboBox();
 
         //======== this ========
         setTitle("\u0421\u0442\u0430\u0442\u0438\u0441\u0442\u0438\u043a\u0430 \u0444\u0456\u0437\u0438\u0447\u043d\u0438\u0445 \u043f\u043e\u043a\u0430\u0437\u043d\u0438\u043a\u0456\u0432");
@@ -863,16 +881,16 @@ public class MainForm extends JFrame {
                 panel1Layout.setHorizontalGroup(
                     panel1Layout.createParallelGroup()
                         .addGroup(panel1Layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addGroup(panel1Layout.createParallelGroup()
-                                        .addComponent(scrollPane1)
-                                        .addGroup(panel1Layout.createSequentialGroup()
-                                                .addComponent(comboBox1, GroupLayout.PREFERRED_SIZE, 173, GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(comboBox2, GroupLayout.PREFERRED_SIZE, 173, GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(checkBox1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                            .addContainerGap()
+                            .addGroup(panel1Layout.createParallelGroup()
+                                .addComponent(scrollPane1)
+                                .addGroup(panel1Layout.createSequentialGroup()
+                                    .addComponent(comboBox1, GroupLayout.PREFERRED_SIZE, 173, GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(comboBox2, GroupLayout.PREFERRED_SIZE, 173, GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(checkBox1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                             .addGroup(panel1Layout.createParallelGroup()
                                 .addComponent(comboBox3, GroupLayout.PREFERRED_SIZE, 173, GroupLayout.PREFERRED_SIZE)
                                 .addComponent(panel3, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
@@ -940,7 +958,16 @@ public class MainForm extends JFrame {
                 comboBox5.addItemListener(new ItemListener() {
                     @Override
                     public void itemStateChanged(ItemEvent e) {
-                        applyWriteFormFilter(e);
+                        applyResultFilter(e);
+                    }
+                });
+
+                //---- comboBox6 ----
+                comboBox6.setEnabled(false);
+                comboBox6.addItemListener(new ItemListener() {
+                    @Override
+                    public void itemStateChanged(ItemEvent e) {
+                        applyResultFilter(e);
                     }
                 });
 
@@ -949,16 +976,18 @@ public class MainForm extends JFrame {
                 panel2Layout.setHorizontalGroup(
                     panel2Layout.createParallelGroup()
                         .addGroup(panel2Layout.createSequentialGroup()
-                                .addGroup(panel2Layout.createParallelGroup()
-                                        .addGroup(panel2Layout.createSequentialGroup()
-                                                .addContainerGap()
-                                                .addComponent(comboBox4, GroupLayout.PREFERRED_SIZE, 173, GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(comboBox5, GroupLayout.PREFERRED_SIZE, 95, GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(button1, GroupLayout.PREFERRED_SIZE, 211, GroupLayout.PREFERRED_SIZE))
-                                        .addComponent(scrollPane2, GroupLayout.PREFERRED_SIZE, 922, GroupLayout.PREFERRED_SIZE))
-                                .addGap(23, 23, 23))
+                            .addGroup(panel2Layout.createParallelGroup()
+                                .addGroup(panel2Layout.createSequentialGroup()
+                                    .addContainerGap()
+                                    .addComponent(comboBox4)
+                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(comboBox5)
+                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(comboBox6, GroupLayout.PREFERRED_SIZE, 235, GroupLayout.PREFERRED_SIZE)
+                                    .addGap(189, 189, 189)
+                                    .addComponent(button1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addComponent(scrollPane2, GroupLayout.PREFERRED_SIZE, 922, GroupLayout.PREFERRED_SIZE))
+                            .addGap(23, 23, 23))
                 );
                 panel2Layout.setVerticalGroup(
                     panel2Layout.createParallelGroup()
@@ -966,15 +995,13 @@ public class MainForm extends JFrame {
                             .addComponent(scrollPane2, GroupLayout.PREFERRED_SIZE, 424, GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                             .addGroup(panel2Layout.createParallelGroup()
-                                    .addGroup(panel2Layout.createSequentialGroup()
-                                            .addComponent(comboBox4, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(0, 0, Short.MAX_VALUE))
-                                    .addGroup(GroupLayout.Alignment.TRAILING, panel2Layout.createSequentialGroup()
-                                            .addGap(0, 0, Short.MAX_VALUE)
-                                            .addComponent(comboBox5, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(button1, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addComponent(comboBox5, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(comboBox4, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(comboBox6, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(button1))
+                            .addContainerGap())
                 );
+                panel2Layout.linkSize(SwingConstants.VERTICAL, new Component[] {button1, comboBox4, comboBox5, comboBox6});
             }
             tabbedPane1.addTab("\u0420\u0435\u0434\u0430\u0433\u0443\u0432\u0430\u043d\u043d\u044f", panel2);
         }
@@ -991,8 +1018,8 @@ public class MainForm extends JFrame {
         contentPaneLayout.setVerticalGroup(
             contentPaneLayout.createParallelGroup()
                 .addGroup(contentPaneLayout.createSequentialGroup()
-                        .addComponent(tabbedPane1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(tabbedPane1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                    .addGap(0, 0, Short.MAX_VALUE))
         );
         pack();
         setLocationRelativeTo(getOwner());
@@ -1015,6 +1042,7 @@ public class MainForm extends JFrame {
     JComboBox<String> comboBox4;
     JButton button1;
     JComboBox comboBox5;
+    JComboBox comboBox6;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 
     public static void main(String[] args) {
