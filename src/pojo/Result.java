@@ -21,9 +21,6 @@ public class Result{
     @JoinColumn(name = "studentId")
     private Student studentId;
 
-    @Column (name = "course")
-    private int course;
-
     @Column (name = "result")
     private double result;
 
@@ -51,14 +48,6 @@ public class Result{
 
     public void setStudentId(Student studentId) {
         this.studentId = studentId;
-    }
-
-    public int getCourse() {
-        return course;
-    }
-
-    public void setCourse(int course) {
-        this.course = course;
     }
 
     public double getResult() {

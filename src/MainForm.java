@@ -43,9 +43,9 @@ public class MainForm extends JFrame {
             comboBox6.setEnabled(true);
             listenerIsStopped = true;
             comboBox6.removeAllItems();
+            tml.studentsId.clear();
             for(Student s:(List<Student>)ch.loadTable("from Student where groupId = "+tml.groupsId.get(0))){
                 comboBox6.addItem(s.getName());
-                tml.studentsId.clear();
                 tml.studentsId.add(s.getStudentId());
             }
             listenerIsStopped = false;
@@ -502,7 +502,7 @@ public class MainForm extends JFrame {
 
                 @Override
                 public int getColumnCount() {
-                    return 3;
+                    return 4;
                 }
 
                 @Override
@@ -513,6 +513,8 @@ public class MainForm extends JFrame {
                         case 1:
                             return "Норматив";
                         case 2:
+                            return "Курс";
+                        case 3:
                             return "Результат";
                     }
                     return "";
@@ -533,6 +535,8 @@ public class MainForm extends JFrame {
                         case 1:
                             return res.getSportNormId().getSportNormNameId().getSportNormName();
                         case 2:
+                            return res.getSportNormId().getCourseNorm();
+                        case 3:
                             return res.getResult();
                     }
                     return "";
