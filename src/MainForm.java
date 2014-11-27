@@ -1,8 +1,5 @@
 
-import pojo.Group;
-import pojo.SportNorm;
-import pojo.SportNormName;
-import pojo.Student;
+import pojo.*;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
@@ -104,8 +101,9 @@ public class MainForm extends JFrame {
 
         ModelLoader(){
             lastQuery = "";
-            groupsId=new ArrayList<>();
-            snId=new ArrayList<>();
+            groupsId = new ArrayList<>();
+            snId = new ArrayList<>();
+            studentsId = new ArrayList<>();
             groupList=ch.loadTable("from Group");
             sportNormNameList =ch.loadTable("from SportNormName");
         }
@@ -484,8 +482,16 @@ public class MainForm extends JFrame {
         public void getResultModel(int studentId){
             currentQuery="from Result where studentId = "+studentId;
             DefaultTableModel result_tm;
+            Student currentStudent =(Student)ch.loadTable("from Student where studentId ="+studentId).get(0);
             lastQuery = currentQuery;
-            final List resultList=ch.loadTable(currentQuery);
+            final List resultList = ch.loadTable(currentQuery);
+            final List allowedNorms = new ArrayList();
+            for(SportNorm sn:(List<SportNorm>)ch.loadTable("from SportNorm where(" +
+                    "genderNorm ="+currentStudent.getGender()+
+                    "healthGroupNorm ="+currentStudent.getHealthGroup()+
+                    ")")){
+                allowedNorms.add(sn);
+            }
 
             result_tm = new DefaultTableModel(){
 
@@ -519,30 +525,15 @@ public class MainForm extends JFrame {
 
                 @Override
                 public Object getValueAt(int rowIndex, int columnIndex) {
-                    SportNorm res=(SportNorm)resultList.get(rowIndex);
+                    Result res=(Result)resultList.get(rowIndex);
+                    if(allowedNorms.contains(res.getSportNormId()))
                     switch(columnIndex){
                         case 0:
-                            return res.getSportNormId();
+                            return res.getResultId();
                         case 1:
-                            return res.getSportNormNameId().getSportNormName();
+                            return res.getSportNormId().getSportNormNameId().getSportNormName();
                         case 2:
-                            return res.getCourseNorm();
-                        case 3:
-                            if(res.getGenderNorm()==0)
-                                return "хлопці";
-                            else
-                                return "дівчата";
-                        case 4:
-                            if(res.getHealthGroupNorm()==0)
-                                return "Звичайна";
-                            else
-                                return "Спецгрупа";
-                        case 5:
-                            return res.getExcellentMark();
-                        case 6:
-                            return res.getGoodMark();
-                        case 7:
-                            return res.getSatisfactorilyMark();
+                            return res.getResult();
                     }
                     return "";
                 }
@@ -600,10 +591,7 @@ public class MainForm extends JFrame {
             initInsertedCombos(table2,3,cbItem,80);
             cbItem.clear();
 
-            cbItem.add("Звичайна");
-            cbItem.add("Спецгрупа");
-            initInsertedCombos(table2,4,cbItem,90);
-            cbItem.clear();
+
         }
 
         private void initInsertedCombos(JTable table,int columnIndex,ArrayList<String> rows){//after TM init
@@ -983,8 +971,8 @@ public class MainForm extends JFrame {
                                     .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                     .addComponent(comboBox5)
                                     .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(comboBox6, GroupLayout.PREFERRED_SIZE, 235, GroupLayout.PREFERRED_SIZE)
-                                    .addGap(189, 189, 189)
+                                    .addComponent(comboBox6, GroupLayout.PREFERRED_SIZE, 201, GroupLayout.PREFERRED_SIZE)
+                                    .addGap(223, 223, 223)
                                     .addComponent(button1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                 .addComponent(scrollPane2, GroupLayout.PREFERRED_SIZE, 922, GroupLayout.PREFERRED_SIZE))
                             .addGap(23, 23, 23))
@@ -997,8 +985,8 @@ public class MainForm extends JFrame {
                             .addGroup(panel2Layout.createParallelGroup()
                                 .addComponent(comboBox5, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
                                 .addComponent(comboBox4, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
-                                .addComponent(comboBox6, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
-                                .addComponent(button1))
+                                .addComponent(button1)
+                                .addComponent(comboBox6, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE))
                             .addContainerGap())
                 );
                 panel2Layout.linkSize(SwingConstants.VERTICAL, new Component[] {button1, comboBox4, comboBox5, comboBox6});
