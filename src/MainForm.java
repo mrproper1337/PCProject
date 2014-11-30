@@ -76,19 +76,19 @@ public class MainForm extends JFrame {
     }
     private void applyResultFilter(ItemEvent e) {
         if(!listenerIsStopped){
-            if(e.getItem()==comboBox5){
+            if(e.getSource()==comboBox5){
                 listenerIsStopped = true;
                 comboBox6.removeAllItems();
+                tml.studentsId.clear();
                 for(Student s:(List<Student>)ch.loadTable("from Student where " +
                                 "groupId = "+tml.groupsId.get(comboBox5.getSelectedIndex())
                 ))
                 {
-
                     comboBox6.addItem(s.getName());
-                    tml.studentsId.clear();
                     tml.studentsId.add(s.getStudentId());
                 }
                 listenerIsStopped = false;
+                tml.getResultModel(tml.studentsId.get(0));
             }
             else tml.getResultModel(tml.studentsId.get(comboBox6.getSelectedIndex()));
         }
@@ -110,7 +110,6 @@ public class MainForm extends JFrame {
 
         public void getGroupModel(final boolean editable){
             currentQuery="from Group";
-            System.out.println("getGroupModel");
             DefaultTableModel groups_tm;
             lastQuery = currentQuery;
             groups_tm = new DefaultTableModel(){
@@ -175,7 +174,6 @@ public class MainForm extends JFrame {
             }
             else currentQuery = "from Student";
             if(!lastQuery.equals(currentQuery)){
-                System.out.println("setStudModels");
                 DefaultTableModel students_tm;
                 lastQuery = currentQuery;
                 final java.util.List studentList=ch.loadTable(currentQuery);
@@ -456,6 +454,7 @@ public class MainForm extends JFrame {
             table2.setModel(sportNorm_tm);
 
             ArrayList cbItem = new ArrayList();
+
             for(SportNormName snn:(List<SportNormName>)sportNormNameList)
                 cbItem.add(snn.getSportNormName());
             initInsertedCombos(table2,1,cbItem,160);
@@ -482,13 +481,15 @@ public class MainForm extends JFrame {
         public void getResultModel(int studentId){
             currentQuery="from Result where studentId = "+studentId;
             DefaultTableModel result_tm;
-            Student currentStudent =(Student)ch.loadTable("from Student where studentId ="+studentId).get(0);
-            lastQuery = currentQuery;
             final List resultList = ch.loadTable(currentQuery);
+            lastQuery = currentQuery;
+
+            Student currentStudent =(Student)ch.loadTable("from Student where studentId ="+studentId).get(0);
             final List allowedNorms = new ArrayList();
             for(SportNorm sn:(List<SportNorm>)ch.loadTable("from SportNorm where(" +
-                    "genderNorm ="+currentStudent.getGender()+
-                    "healthGroupNorm ="+currentStudent.getHealthGroup()+
+                    " genderNorm ="+currentStudent.getGender()+
+                    " and "+
+                    " healthGroupNorm ="+currentStudent.getHealthGroup()+
                     ")")){
                 allowedNorms.add(sn);
             }
@@ -528,7 +529,6 @@ public class MainForm extends JFrame {
                 @Override
                 public Object getValueAt(int rowIndex, int columnIndex) {
                     Result res=(Result)resultList.get(rowIndex);
-                    if(allowedNorms.contains(res.getSportNormId()))
                     switch(columnIndex){
                         case 0:
                             return res.getResultId();
@@ -544,36 +544,22 @@ public class MainForm extends JFrame {
 
                 @Override
                 public void setValueAt(Object aValue, int row, int column) {
-                    SportNorm obj =(SportNorm)resultList.get(row);
+                    Result obj =(Result)resultList.get(row);
                     switch(column){
                         case 1:
-//                            for(SportNormName snn:(List<SportNormName>)snnList)
-//                                if(snn.getSportNormName().equals(aValue))
-//                                    obj.setSportNormNameId(snn);
+                            for(SportNorm asn:(List<SportNorm>)allowedNorms)
+                                if(asn.getSportNormNameId().getSportNormName().equals(aValue) &&
+                                        asn.getCourseNorm()==Integer.parseInt(getValueAt(row,2).toString()))
+                                    obj.setSportNormId(asn);
                             break;
                         case 2:
-                            obj.setCourseNorm(Integer.parseInt(aValue.toString()));
+                            for(SportNorm asn:(List<SportNorm>)allowedNorms)
+                                if(asn.getSportNormNameId().getSportNormName().equals(getValueAt(row,1).toString()) &&
+                                        asn.getCourseNorm()==Integer.parseInt(aValue.toString()))
+                                    obj.setSportNormId(asn);
                             break;
                         case 3:
-                            if(aValue=="хлопці")
-                                obj.setGenderNorm(0);
-                            else
-                                obj.setGenderNorm(1);
-                            break;
-                        case 4:
-                            if(aValue=="Звичайна")
-                                obj.setHealthGroupNorm(0);
-                            else
-                                obj.setHealthGroupNorm(1);
-                            break;
-                        case 5:
-                            obj.setExcellentMark(Double.parseDouble(aValue.toString()));
-                            break;
-                        case 6:
-                            obj.setGoodMark(Double.parseDouble(aValue.toString()));
-                            break;
-                        case 7:
-                            obj.setSatisfactorilyMark(Double.parseDouble(aValue.toString()));
+                            obj.setResult(Double.parseDouble(aValue.toString()));
                             break;
                     }
                     ch.updateInTable(obj);
@@ -583,18 +569,17 @@ public class MainForm extends JFrame {
 
             ArrayList cbItem = new ArrayList();
 
-            cbItem.add(1);
-            cbItem.add(2);
-            cbItem.add(3);
-            cbItem.add(4);
-            initInsertedCombos(table2, 2, cbItem, 40);
+            for(SportNorm allowed:(List<SportNorm>)allowedNorms)
+                if(!cbItem.contains(allowed.getSportNormNameId().getSportNormName()))
+                    cbItem.add(allowed.getSportNormNameId().getSportNormName());
+            initInsertedCombos(table2,1,cbItem,160);
             cbItem.clear();
 
-            cbItem.add("хлопці");
-            cbItem.add("дівчата");
-            initInsertedCombos(table2,3,cbItem,80);
+            for(SportNorm allowed:(List<SportNorm>)allowedNorms)
+                if(!cbItem.contains(allowed.getCourseNorm()))
+                    cbItem.add(allowed.getCourseNorm());
+            initInsertedCombos(table2,2,cbItem,40);
             cbItem.clear();
-
 
         }
 
