@@ -38,28 +38,15 @@ public class MainForm extends JFrame {
         }
     }
     private void applyWriteFormFilter(ItemEvent e) {
-        if(comboBox4.getSelectedIndex()==4){
-            comboBox5.setEnabled(true);
-            comboBox6.setEnabled(true);
-            listenerIsStopped = true;
-            comboBox6.removeAllItems();
-            tml.studentsId.clear();
-            for(Student s:(List<Student>)ch.loadTable("from Student where groupId = "+tml.groupsId.get(0))){
-                comboBox6.addItem(s.getName());
-                tml.studentsId.add(s.getStudentId());
-            }
-            listenerIsStopped = false;
+        comboBox5.setEnabled(false);
+        comboBox6.setEnabled(false);
 
-        }
-        else{
-            comboBox5.setEnabled(false);
-            comboBox6.setEnabled(false);
-        }
         switch(comboBox4.getSelectedIndex()){
             case 0:
                 tml.getGroupModel(true);
                 break;
             case 1:
+                comboBox5.setEnabled(true);
                 tml.getStudentModel(true);
                 break;
             case 2:
@@ -69,13 +56,15 @@ public class MainForm extends JFrame {
                 tml.getSportNormModel();
                 break;
             case 4:
+                comboBox5.setEnabled(true);
+                comboBox6.setEnabled(true);
                 tml.getResultModel(tml.studentsId.get(0));
                 break;
         }
         table2.updateUI();
     }
     private void applyResultFilter(ItemEvent e) {
-        if(!listenerIsStopped){
+        if(!listenerIsStopped && comboBox4.getSelectedIndex()!=1){
             if(e.getSource()==comboBox5){
                 listenerIsStopped = true;
                 comboBox6.removeAllItems();
@@ -93,6 +82,52 @@ public class MainForm extends JFrame {
             else tml.getResultModel(tml.studentsId.get(comboBox6.getSelectedIndex()));
         }
     }
+    private void applyStudentFilter(ItemEvent e) {
+        if(!listenerIsStopped && comboBox4.getSelectedIndex()==1)
+            tml.getStudentModel(true);
+    }
+    private void addNewRow(ActionEvent e) {
+        switch(comboBox4.getSelectedIndex()){
+            case 0:
+                Group group = new Group();
+                group.setGroupName("new");
+                ch.addToTable(group);
+                tml.getGroupModel(true);
+                break;
+            case 1:
+                Student student = new Student();
+                student.setName("new");
+                student.setGroupId((Group)tml.groupList.get(comboBox5.getSelectedIndex()));
+                ch.addToTable(student);
+                tml.getStudentModel(true);
+                break;
+            case 2:
+                SportNormName snn = new SportNormName();
+                snn.setSportNormName("new");
+                ch.addToTable(snn);
+                tml.getSNNameModel();
+                break;
+            case 3:
+                SportNorm sn = new SportNorm();
+                sn.setExcellentMark(0);
+                sn.setSatisfactorilyMark(0);
+                sn.setGoodMark(0);
+                ch.addToTable(sn);
+                tml.getSportNormModel();
+                break;
+            case 4:
+                Result result = new Result();
+                result.setResult(0);
+                ch.addToTable(result);
+                tml.getResultModel(tml.studentsId.get(0));
+                break;
+        }
+        table2.updateUI();
+        table2.repaint(1000);
+        tml.setGroupCombo();
+        tml.setSNCombo();
+
+    }
     private class ModelLoader {
 
         List<Integer> groupsId,snId,studentsId;
@@ -108,7 +143,7 @@ public class MainForm extends JFrame {
             sportNormNameList =ch.loadTable("from SportNormName");
         }
 
-        public void getGroupModel(final boolean editable){
+        private void getGroupModel(final boolean editable){
             currentQuery="from Group";
             DefaultTableModel groups_tm;
             lastQuery = currentQuery;
@@ -145,7 +180,7 @@ public class MainForm extends JFrame {
 
                     else{
                         ret = (pojo.Group)groupList.get(rowIndex);
-                        return ret.getGroupName();
+                        return ret.getGroupName().equals("new") ? "" : ret.getGroupName();
                     }
 
                 }
@@ -155,13 +190,19 @@ public class MainForm extends JFrame {
                     Group obj =(Group)groupList.get(row);
                     obj.setGroupName(aValue.toString());
                     ch.updateInTable(obj);
+                    if(aValue.toString().equals("") &&
+                            JOptionPane.showConfirmDialog(null,"видалити рядок?","Поле не може бути пустим",
+                                    JOptionPane.YES_NO_OPTION)==0){
+                        ch.deleteFromTable(obj);
+                        getGroupModel(true);
+                    }
                     setGroupCombo();
                 }
             };
             if(editable)table2.setModel(groups_tm);
             else table1.setModel(groups_tm);
         }
-        public void getStudentModel(final boolean editable){
+        private void getStudentModel(final boolean editable){
             int check = checkBox1.isSelected() ? 1 : 0;
             if(!editable){
                 currentQuery = "from Student where(" +
@@ -172,7 +213,7 @@ public class MainForm extends JFrame {
                         "healthGroup = "+check+
                         ")";
             }
-            else currentQuery = "from Student";
+            else currentQuery = "from Student where groupId = "+groupsId.get(comboBox5.getSelectedIndex());
             if(!lastQuery.equals(currentQuery)){
                 DefaultTableModel students_tm;
                 lastQuery = currentQuery;
@@ -187,7 +228,7 @@ public class MainForm extends JFrame {
 
                     @Override
                     public int getColumnCount() {
-                        return 5;
+                        return 4;
                     }
 
                     @Override
@@ -201,8 +242,6 @@ public class MainForm extends JFrame {
                                 return "Стать";
                             case 3:
                                 return "Група здоров'я";
-                            case 4:
-                                return "Група";
 
                         }
                         return null;
@@ -220,21 +259,21 @@ public class MainForm extends JFrame {
                             case 0:
                                 return res.getStudentId();
                             case 1:
+                                if(res.getName().equals("new"))
+                                    return "";
                                 return res.getName();
                             case 2:
-                                if(res.getGender()==0)
+                                if(res.getGender()==0 || res.getName().equals("new"))
                                     return "хлопець";
                                 else
                                     return "дівчина";
                             case 3:
-                                if(res.getHealthGroup()==0)
+                                if(res.getHealthGroup()==0 || res.getName().equals("new"))
                                     return "Звичайна";
                                 else
                                     return "Спецгрупа";
-                            case 4:
-                                return res.getGroupId().getGroupName();
                         }
-                        return null;
+                        return "";
                     }
 
                     @Override
@@ -256,13 +295,14 @@ public class MainForm extends JFrame {
                                 else
                                     obj.setHealthGroup(1);
                                 break;
-                            case 4:
-                                for(Group g:(List<Group>)groupList)
-                                    if(g.getGroupName().equals(aValue))
-                                        obj.setGroupId(g);
-
                         }
                         ch.updateInTable(obj);
+                        if(aValue.toString().equals("") &&
+                                JOptionPane.showConfirmDialog(null,"видалити рядок?","Поле не може бути пустим",
+                                        JOptionPane.YES_NO_OPTION)==0){
+                            ch.deleteFromTable(obj);
+                            getStudentModel(true);
+                        }
                     }
                 };
                 if(editable){
@@ -278,16 +318,11 @@ public class MainForm extends JFrame {
                     cbItem.add("Спецгрупа");
                     initInsertedCombos(table2,3,cbItem);
                     cbItem.clear();
-
-                    for(Group a:(List<Group>)groupList)
-                        cbItem.add(a.getGroupName());
-                    initInsertedCombos(table2,4,cbItem);
-                    cbItem.clear();
                 }
                 else table1.setModel(students_tm);
             }
         }
-        public void getSNNameModel(){
+        private void getSNNameModel(){
             currentQuery="from SportNormName";
             DefaultTableModel sportNormName_tm;
             lastQuery = currentQuery;
@@ -324,7 +359,7 @@ public class MainForm extends JFrame {
 
                     else{
                         ret = (SportNormName)sportNormNameList.get(rowIndex);
-                        return ret.getSportNormName();
+                        return ret.getSportNormName().equals("new") ? "" : ret.getSportNormName();
                     }
 
                 }
@@ -334,12 +369,18 @@ public class MainForm extends JFrame {
                     SportNormName obj =(SportNormName)sportNormNameList.get(row);
                     obj.setSportNormName(aValue.toString());
                     ch.updateInTable(obj);
+                    if(aValue.toString().equals("") &&
+                            JOptionPane.showConfirmDialog(null,"видалити рядок?","Поле не може бути пустим",
+                                    JOptionPane.YES_NO_OPTION)==0){
+                        ch.deleteFromTable(obj);
+                        getSNNameModel();
+                    }
                     setSNCombo();
                 }
             };
             table2.setModel(sportNormName_tm);
         }
-        public void getSportNormModel(){
+        private void getSportNormModel(){
             currentQuery="from SportNorm";
             DefaultTableModel sportNorm_tm;
             lastQuery = currentQuery;
@@ -387,28 +428,37 @@ public class MainForm extends JFrame {
                 @Override
                 public Object getValueAt(int rowIndex, int columnIndex) {
                     SportNorm res=(SportNorm)sportNormList.get(rowIndex);
+                    boolean newRow = false;
+                    if(res.getGoodMark()==0 && res.getSatisfactorilyMark()==0 && res.getExcellentMark()==0 )
+                        newRow = true;
+
                     switch(columnIndex){
                         case 0:
                             return res.getSportNormId();
                         case 1:
+                            if(newRow)return sportNormNameList.get(0);
                             return res.getSportNormNameId().getSportNormName();
                         case 2:
+                            if(newRow)return 1;
                             return res.getCourseNorm();
                         case 3:
-                            if(res.getGenderNorm()==0)
+                            if(res.getGenderNorm()==0 || newRow)
                                 return "хлопці";
                             else
                                 return "дівчата";
                         case 4:
-                            if(res.getHealthGroupNorm()==0)
+                            if(res.getHealthGroupNorm()==0 || newRow)
                                 return "Звичайна";
                             else
                                 return "Спецгрупа";
                         case 5:
+                            if(newRow) return "";
                             return res.getExcellentMark();
                         case 6:
+                            if(newRow) return "";
                             return res.getGoodMark();
                         case 7:
+                            if(newRow) return "";
                             return res.getSatisfactorilyMark();
                     }
                     return "";
@@ -449,6 +499,12 @@ public class MainForm extends JFrame {
                             break;
                     }
                     ch.updateInTable(obj);
+                    if(aValue.toString().equals("") &&
+                            JOptionPane.showConfirmDialog(null,"видалити рядок?","Поле не може бути пустим",
+                                    JOptionPane.YES_NO_OPTION)==0){
+                        ch.deleteFromTable(obj);
+                        getSportNormModel();
+                    }
                 }
             };
             table2.setModel(sportNorm_tm);
@@ -478,7 +534,7 @@ public class MainForm extends JFrame {
             cbItem.clear();
 
         }
-        public void getResultModel(int studentId){
+        private void getResultModel(final int studentId){
             currentQuery="from Result where studentId = "+studentId;
             DefaultTableModel result_tm;
             final List resultList = ch.loadTable(currentQuery);
@@ -533,10 +589,13 @@ public class MainForm extends JFrame {
                         case 0:
                             return res.getResultId();
                         case 1:
+                            if(res.getResult()==0)return sportNormNameList.get(0);
                             return res.getSportNormId().getSportNormNameId().getSportNormName();
                         case 2:
+                            if(res.getResult()==0) return 1;
                             return res.getSportNormId().getCourseNorm();
                         case 3:
+                            if(res.getResult()==0) return "";
                             return res.getResult();
                     }
                     return "";
@@ -563,6 +622,12 @@ public class MainForm extends JFrame {
                             break;
                     }
                     ch.updateInTable(obj);
+                    if(aValue.toString().equals("") &&
+                            JOptionPane.showConfirmDialog(null,"видалити рядок?","Поле не може бути пустим",
+                                    JOptionPane.YES_NO_OPTION)==0){
+                        ch.deleteFromTable(obj);
+                        getResultModel(studentId);
+                    }
                 }
             };
             table2.setModel(result_tm);
@@ -597,7 +662,7 @@ public class MainForm extends JFrame {
             column.setCellRenderer(new ComboBoxCellRenderer(rows,width));
             column.setCellEditor(new ComboBoxCellEditor(rows,width));
         }
-        public void setGroupCombo(){
+        private void setGroupCombo(){
             final java.util.List groupList=ch.loadTable("from Group");
             listenerIsStopped=true;
             groupsId.clear();
@@ -611,13 +676,24 @@ public class MainForm extends JFrame {
             }
             listenerIsStopped=false;
         }
-        public void setSNCombo(){
+        private void setSNCombo(){
+            listenerIsStopped = true;
             snId.clear();
             comboBox3.removeAllItems();
             for(SportNormName a:(java.util.List<SportNormName>)sportNormNameList){
                 comboBox3.addItem(a.getSportNormName());
                 snId.add(a.getSportNormNameId());
             }
+            listenerIsStopped = false;
+
+            listenerIsStopped = true;
+            comboBox6.removeAllItems();
+            tml.studentsId.clear();
+            for(Student s:(List<Student>)ch.loadTable("from Student where groupId = "+tml.groupsId.get(0))){
+                comboBox6.addItem(s.getName());
+                tml.studentsId.add(s.getStudentId());
+            }
+            listenerIsStopped = false;
         }
 
         class ComboBoxPanel extends JPanel {
@@ -929,6 +1005,12 @@ public class MainForm extends JFrame {
 
                 //---- button1 ----
                 button1.setText("\u0414\u043e\u0434\u0430\u0442\u0438 \u0440\u044f\u0434\u043e\u043a");
+                button1.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        addNewRow(e);
+                    }
+                });
 
                 //---- comboBox5 ----
                 comboBox5.setEnabled(false);
@@ -936,6 +1018,7 @@ public class MainForm extends JFrame {
                     @Override
                     public void itemStateChanged(ItemEvent e) {
                         applyResultFilter(e);
+                        applyStudentFilter(e);
                     }
                 });
 

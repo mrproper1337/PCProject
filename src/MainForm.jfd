@@ -100,11 +100,13 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JButton" ) {
 						name: "button1"
 						"text": "Додати рядок"
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "addNewRow", true ) )
 					} )
 					add( new FormComponent( "javax.swing.JComboBox" ) {
 						name: "comboBox5"
 						"enabled": false
 						addEvent( new FormEvent( "java.awt.event.ItemListener", "itemStateChanged", "applyResultFilter", true ) )
+						addEvent( new FormEvent( "java.awt.event.ItemListener", "itemStateChanged", "applyStudentFilter", true ) )
 					} )
 					add( new FormComponent( "javax.swing.JComboBox" ) {
 						name: "comboBox6"

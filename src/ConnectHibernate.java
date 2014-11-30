@@ -44,7 +44,7 @@ public class ConnectHibernate {
         return resultList;
     }
 
-    public <T> int addTotable(T item){
+    public <T> int addToTable(T item){
         int id = 0;
         Session session = factory.openSession();
         Transaction tx = null;
@@ -67,6 +67,21 @@ public class ConnectHibernate {
         try{
             tx = session.beginTransaction();
             session.update(item);
+            tx.commit();
+        }catch (HibernateException e) {
+            if (tx!=null) tx.rollback();
+            e.printStackTrace();
+        }finally {
+            session.close();
+        }
+    }
+
+    public <T>void deleteFromTable(T item){
+        Session session = factory.openSession();
+        Transaction tx = null;
+        try{
+            tx = session.beginTransaction();
+            session.delete(item);
             tx.commit();
         }catch (HibernateException e) {
             if (tx!=null) tx.rollback();
