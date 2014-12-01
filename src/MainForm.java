@@ -109,6 +109,10 @@ public class MainForm extends JFrame {
                 break;
             case 3:
                 SportNorm sn = new SportNorm();
+                sn.setSportNormNameId((SportNormName)tml.sportNormNameList.get(0));
+                sn.setCourseNorm(1);
+                sn.setGenderNorm(0);
+                sn.setHealthGroupNorm(0);
                 sn.setExcellentMark(0);
                 sn.setSatisfactorilyMark(0);
                 sn.setGoodMark(0);
@@ -117,6 +121,8 @@ public class MainForm extends JFrame {
                 break;
             case 4:
                 Result result = new Result();
+                result.setSportNormId((SportNorm) tml.currentAllowedNorms.get(0));
+                result.setStudentId(tml.currentResultStudent);
                 result.setResult(0);
                 ch.addToTable(result);
                 tml.getResultModel(tml.studentsId.get(0));
@@ -132,7 +138,8 @@ public class MainForm extends JFrame {
     private class ModelLoader {
 
         List<Integer> groupsId,snId,studentsId;
-        List groupList, sportNormNameList;
+        List groupList, sportNormNameList, currentAllowedNorms;
+        Student currentResultStudent;
         String lastQuery,currentQuery;
 
         ModelLoader(){
@@ -543,14 +550,14 @@ public class MainForm extends JFrame {
             final List resultList = ch.loadTable(currentQuery);
             lastQuery = currentQuery;
 
-            Student currentStudent =(Student)ch.loadTable("from Student where studentId ="+studentId).get(0);
-            final List allowedNorms = new ArrayList();
+            currentResultStudent =(Student)ch.loadTable("from Student where studentId ="+studentId).get(0);
+            currentAllowedNorms = new ArrayList();
             for(SportNorm sn:(List<SportNorm>)ch.loadTable("from SportNorm where(" +
-                    " genderNorm ="+currentStudent.getGender()+
+                    " genderNorm ="+ currentResultStudent.getGender()+
                     " and "+
-                    " healthGroupNorm ="+currentStudent.getHealthGroup()+
+                    " healthGroupNorm ="+ currentResultStudent.getHealthGroup()+
                     ")")){
-                allowedNorms.add(sn);
+                currentAllowedNorms.add(sn);
             }
 
             result_tm = new DefaultTableModel(){
@@ -609,13 +616,13 @@ public class MainForm extends JFrame {
                     Result obj =(Result)resultList.get(row);
                     switch(column){
                         case 1:
-                            for(SportNorm asn:(List<SportNorm>)allowedNorms)
+                            for(SportNorm asn:(List<SportNorm>) currentAllowedNorms)
                                 if(asn.getSportNormNameId().getSportNormName().equals(aValue) &&
                                         asn.getCourseNorm()==Integer.parseInt(getValueAt(row,2).toString()))
                                     obj.setSportNormId(asn);
                             break;
                         case 2:
-                            for(SportNorm asn:(List<SportNorm>)allowedNorms)
+                            for(SportNorm asn:(List<SportNorm>) currentAllowedNorms)
                                 if(asn.getSportNormNameId().getSportNormName().equals(getValueAt(row,1).toString()) &&
                                         asn.getCourseNorm()==Integer.parseInt(aValue.toString()))
                                     obj.setSportNormId(asn);
@@ -637,13 +644,13 @@ public class MainForm extends JFrame {
 
             ArrayList cbItem = new ArrayList();
 
-            for(SportNorm allowed:(List<SportNorm>)allowedNorms)
+            for(SportNorm allowed:(List<SportNorm>) currentAllowedNorms)
                 if(!cbItem.contains(allowed.getSportNormNameId().getSportNormName()))
                     cbItem.add(allowed.getSportNormNameId().getSportNormName());
             initInsertedCombos(table2,1,cbItem,160);
             cbItem.clear();
 
-            for(SportNorm allowed:(List<SportNorm>)allowedNorms)
+            for(SportNorm allowed:(List<SportNorm>) currentAllowedNorms)
                 if(!cbItem.contains(allowed.getCourseNorm()))
                     cbItem.add(allowed.getCourseNorm());
             initInsertedCombos(table2,2,cbItem,40);
