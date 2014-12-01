@@ -122,7 +122,6 @@ public class MainForm extends JFrame {
                 tml.getResultModel(tml.studentsId.get(0));
                 break;
         }
-        System.out.println(tml.groupList);
         table2.updateUI();
         table2.repaint();
         table2.revalidate();
