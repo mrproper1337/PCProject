@@ -122,16 +122,18 @@ public class MainForm extends JFrame {
                 tml.getResultModel(tml.studentsId.get(0));
                 break;
         }
+        System.out.println(tml.groupList);
         table2.updateUI();
-        table2.repaint(1000);
+        table2.repaint();
+        table2.revalidate();
+        tml.getGroupModel(false);
         tml.setGroupCombo();
         tml.setSNCombo();
-
     }
     private class ModelLoader {
 
         List<Integer> groupsId,snId,studentsId;
-        final List groupList, sportNormNameList;
+        List groupList, sportNormNameList;
         String lastQuery,currentQuery;
 
         ModelLoader(){
@@ -139,12 +141,13 @@ public class MainForm extends JFrame {
             groupsId = new ArrayList<>();
             snId = new ArrayList<>();
             studentsId = new ArrayList<>();
-            groupList=ch.loadTable("from Group");
-            sportNormNameList =ch.loadTable("from SportNormName");
+            groupList = ch.loadTable("from Group");
+            sportNormNameList = ch.loadTable("from SportNormName");
         }
 
         private void getGroupModel(final boolean editable){
             currentQuery="from Group";
+            groupList = ch.loadTable("from Group");
             DefaultTableModel groups_tm;
             lastQuery = currentQuery;
             groups_tm = new DefaultTableModel(){
@@ -324,6 +327,7 @@ public class MainForm extends JFrame {
         }
         private void getSNNameModel(){
             currentQuery="from SportNormName";
+            final List sportNormNameList = ch.loadTable("from SportNormName");
             DefaultTableModel sportNormName_tm;
             lastQuery = currentQuery;
             sportNormName_tm = new DefaultTableModel(){
