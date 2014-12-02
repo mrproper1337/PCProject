@@ -87,6 +87,7 @@ public class MainForm extends JFrame {
             tml.getStudentModel(true);
     }
     private void addNewRow(ActionEvent e) {
+        tml.lastQuery = "";
         switch(comboBox4.getSelectedIndex()){
             case 0:
                 Group group = new Group();
@@ -97,8 +98,9 @@ public class MainForm extends JFrame {
             case 1:
                 Student student = new Student();
                 student.setName("new");
-                student.setGroupId((Group)tml.groupList.get(comboBox5.getSelectedIndex()));
+                student.setGroupId((Group) tml.groupList.get(comboBox5.getSelectedIndex()));
                 ch.addToTable(student);
+                tml.setGroupCombo();
                 tml.getStudentModel(true);
                 break;
             case 2:
@@ -129,11 +131,46 @@ public class MainForm extends JFrame {
                 break;
         }
         table2.updateUI();
-        table2.repaint();
-        table2.revalidate();
         tml.getGroupModel(false);
         tml.setGroupCombo();
         tml.setSNCombo();
+    }
+    private void deleteRow(int modelKey,Object toRemove){
+        tml.lastQuery = "";
+        switch (modelKey){
+            case 1:
+                Group group = (Group)toRemove;
+                for(Student st:(List<Student>)ch.loadTable("from Student where groupId ="+group.getGroupId())){
+                    for(Result rs:(List<Result>)ch.loadTable("from Result where studentId ="+st.getStudentId())){
+                        ch.deleteFromTable(rs);
+                    }
+                    ch.deleteFromTable(st);
+                }
+                ch.deleteFromTable(group);
+                tml.getGroupModel(true);
+                break;
+            case 2:
+                Student student = (Student)toRemove;
+                for(Result rs:(List<Result>)ch.loadTable("from Result where studentId ="+student.getStudentId())){
+                    ch.deleteFromTable(rs);
+                }
+                ch.deleteFromTable(student);
+                tml.getStudentModel(true);
+                break;
+            case 3:
+                SportNormName sportNorN = (SportNormName)toRemove;
+                for(SportNorm sn:(List<SportNorm>)ch.loadTable("from SportNorm where groupId =" + sportNorN.getSportNormNameId())){
+                    for(Result rs:(List<Result>)ch.loadTable("from Result where studentId ="+sn.getSportNormId())){
+                        ch.deleteFromTable(rs);
+                    }
+                    ch.deleteFromTable(sn);
+                }
+                ch.deleteFromTable(sportNorN);
+                tml.getSNNameModel();
+                break;
+            case 4:
+
+        }
     }
     private class ModelLoader {
 
@@ -147,7 +184,6 @@ public class MainForm extends JFrame {
             groupsId = new ArrayList<>();
             snId = new ArrayList<>();
             studentsId = new ArrayList<>();
-            groupList = ch.loadTable("from Group");
             sportNormNameList = ch.loadTable("from SportNormName");
         }
 
@@ -197,13 +233,14 @@ public class MainForm extends JFrame {
                 @Override
                 public void setValueAt(Object aValue, int row, int column) {
                     Group obj =(Group)groupList.get(row);
-                    obj.setGroupName(aValue.toString());
-                    ch.updateInTable(obj);
                     if(aValue.toString().equals("") &&
-                            JOptionPane.showConfirmDialog(null,"видалити рядок?","Поле не може бути пустим",
-                                    JOptionPane.YES_NO_OPTION)==0){
-                        ch.deleteFromTable(obj);
-                        getGroupModel(true);
+                            JOptionPane.showConfirmDialog(null,"Видалити групу ?\nТакож будуть видалені " +
+                                            "студенти\nданної групи та їх результати !","Поле не може бути пустим",
+                                    JOptionPane.YES_NO_OPTION)==0)
+                        deleteRow(1,obj);
+                    else{
+                        obj.setGroupName(aValue.toString());
+                        ch.updateInTable(obj);
                     }
                     setGroupCombo();
                 }
@@ -288,30 +325,32 @@ public class MainForm extends JFrame {
                     @Override
                     public void setValueAt(Object aValue, int row, int column) {
                         Student obj =(Student)studentList.get(row);
-                        switch(column){
-                            case 1:
-                                obj.setName(aValue.toString());
-                                break;
-                            case 2:
-                                if(aValue=="хлопець")
-                                    obj.setGender(0);
-                                else
-                                    obj.setGender(1);
-                                break;
-                            case 3:
-                                if(aValue=="Звичайна")
-                                    obj.setHealthGroup(0);
-                                else
-                                    obj.setHealthGroup(1);
-                                break;
-                        }
-                        ch.updateInTable(obj);
                         if(aValue.toString().equals("") &&
-                                JOptionPane.showConfirmDialog(null,"видалити рядок?","Поле не може бути пустим",
-                                        JOptionPane.YES_NO_OPTION)==0){
-                            ch.deleteFromTable(obj);
-                            getStudentModel(true);
+                                JOptionPane.showConfirmDialog(null,"Видалити студента ?\nТакож будуть видалені усі\nйого результати !","Поле не може бути пустим",
+                                        JOptionPane.YES_NO_OPTION)==0)
+                            deleteRow(2,obj);
+                        else{
+                            switch(column){
+                                case 1:
+                                    obj.setName(aValue.toString());
+                                    break;
+                                case 2:
+                                    if(aValue=="хлопець")
+                                        obj.setGender(0);
+                                    else
+                                        obj.setGender(1);
+                                    break;
+                                case 3:
+                                    if(aValue=="Звичайна")
+                                        obj.setHealthGroup(0);
+                                    else
+                                        obj.setHealthGroup(1);
+                                    break;
+                            }
+                            ch.updateInTable(obj);
                         }
+
+
                     }
                 };
                 if(editable){
@@ -333,7 +372,7 @@ public class MainForm extends JFrame {
         }
         private void getSNNameModel(){
             currentQuery="from SportNormName";
-            final List sportNormNameList = ch.loadTable("from SportNormName");
+            sportNormNameList = ch.loadTable(currentQuery);
             DefaultTableModel sportNormName_tm;
             lastQuery = currentQuery;
             sportNormName_tm = new DefaultTableModel(){
@@ -614,30 +653,32 @@ public class MainForm extends JFrame {
                 @Override
                 public void setValueAt(Object aValue, int row, int column) {
                     Result obj =(Result)resultList.get(row);
-                    switch(column){
-                        case 1:
-                            for(SportNorm asn:(List<SportNorm>) currentAllowedNorms)
-                                if(asn.getSportNormNameId().getSportNormName().equals(aValue) &&
-                                        asn.getCourseNorm()==Integer.parseInt(getValueAt(row,2).toString()))
-                                    obj.setSportNormId(asn);
-                            break;
-                        case 2:
-                            for(SportNorm asn:(List<SportNorm>) currentAllowedNorms)
-                                if(asn.getSportNormNameId().getSportNormName().equals(getValueAt(row,1).toString()) &&
-                                        asn.getCourseNorm()==Integer.parseInt(aValue.toString()))
-                                    obj.setSportNormId(asn);
-                            break;
-                        case 3:
-                            obj.setResult(Double.parseDouble(aValue.toString()));
-                            break;
-                    }
-                    ch.updateInTable(obj);
                     if(aValue.toString().equals("") &&
                             JOptionPane.showConfirmDialog(null,"видалити рядок?","Поле не може бути пустим",
                                     JOptionPane.YES_NO_OPTION)==0){
                         ch.deleteFromTable(obj);
                         getResultModel(studentId);
+                    }else{
+                        switch(column){
+                            case 1:
+                                for(SportNorm asn:(List<SportNorm>) currentAllowedNorms)
+                                    if(asn.getSportNormNameId().getSportNormName().equals(aValue) &&
+                                            asn.getCourseNorm()==Integer.parseInt(getValueAt(row,2).toString()))
+                                        obj.setSportNormId(asn);
+                                break;
+                            case 2:
+                                for(SportNorm asn:(List<SportNorm>) currentAllowedNorms)
+                                    if(asn.getSportNormNameId().getSportNormName().equals(getValueAt(row,1).toString()) &&
+                                            asn.getCourseNorm()==Integer.parseInt(aValue.toString()))
+                                        obj.setSportNormId(asn);
+                                break;
+                            case 3:
+                                obj.setResult(Double.parseDouble(aValue.toString()));
+                                break;
+                        }
+                        ch.updateInTable(obj);
                     }
+
                 }
             };
             table2.setModel(result_tm);
@@ -690,7 +731,7 @@ public class MainForm extends JFrame {
             listenerIsStopped = true;
             snId.clear();
             comboBox3.removeAllItems();
-            for(SportNormName a:(java.util.List<SportNormName>)sportNormNameList){
+            for(SportNormName a:(List<SportNormName>)sportNormNameList){
                 comboBox3.addItem(a.getSportNormName());
                 snId.add(a.getSportNormNameId());
             }
