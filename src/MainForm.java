@@ -127,7 +127,7 @@ public class MainForm extends JFrame {
                 result.setStudentId(tml.currentResultStudent);
                 result.setResult(0);
                 ch.addToTable(result);
-                tml.getResultModel(tml.studentsId.get(0));
+                tml.getResultModel(tml.currentResultStudent.getStudentId());
                 break;
         }
         table2.updateUI();
@@ -159,8 +159,8 @@ public class MainForm extends JFrame {
                 break;
             case 3:
                 SportNormName sportNorN = (SportNormName)toRemove;
-                for(SportNorm sn:(List<SportNorm>)ch.loadTable("from SportNorm where groupId =" + sportNorN.getSportNormNameId())){
-                    for(Result rs:(List<Result>)ch.loadTable("from Result where studentId ="+sn.getSportNormId())){
+                for(SportNorm sn:(List<SportNorm>)ch.loadTable("from SportNorm where  sportNormNameId =" + sportNorN.getSportNormNameId())){
+                    for(Result rs:(List<Result>)ch.loadTable("from Result where sportNormId ="+sn.getSportNormId())){
                         ch.deleteFromTable(rs);
                     }
                     ch.deleteFromTable(sn);
@@ -169,7 +169,17 @@ public class MainForm extends JFrame {
                 tml.getSNNameModel();
                 break;
             case 4:
-
+                SportNorm sportN = (SportNorm)toRemove;
+                for(Result rs:(List<Result>)ch.loadTable("from Result where sportNormId =" + sportN.getSportNormId())){
+                    ch.deleteFromTable(rs);
+                }
+                ch.deleteFromTable(sportN);
+                tml.getSportNormModel();
+                break;
+            case 5:
+                ch.deleteFromTable(toRemove);
+                tml.getResultModel(tml.currentResultStudent.getStudentId());
+                break;
         }
     }
     private class ModelLoader {
@@ -416,15 +426,15 @@ public class MainForm extends JFrame {
                 @Override
                 public void setValueAt(Object aValue, int row, int column) {
                     SportNormName obj =(SportNormName)sportNormNameList.get(row);
-                    obj.setSportNormName(aValue.toString());
-                    ch.updateInTable(obj);
                     if(aValue.toString().equals("") &&
-                            JOptionPane.showConfirmDialog(null,"видалити рядок?","Поле не може бути пустим",
+                            JOptionPane.showConfirmDialog(null,"Видалити норматив ?\nТакож будуть видалені вимоги до нормативу\nта його результати !","Поле не може бути пустим",
                                     JOptionPane.YES_NO_OPTION)==0){
-                        ch.deleteFromTable(obj);
-                        getSNNameModel();
+                        deleteRow(3,obj);
+
+                    }else{
+                        obj.setSportNormName(aValue.toString());
+                        ch.updateInTable(obj);
                     }
-                    setSNCombo();
                 }
             };
             table2.setModel(sportNormName_tm);
@@ -516,44 +526,46 @@ public class MainForm extends JFrame {
                 @Override
                 public void setValueAt(Object aValue, int row, int column) {
                     SportNorm obj =(SportNorm)sportNormList.get(row);
-                    switch(column){
-                        case 1:
-                            for(SportNormName snn:(List<SportNormName>)sportNormNameList)
-                                if(snn.getSportNormName().equals(aValue))
-                                    obj.setSportNormNameId(snn);
-                            break;
-                        case 2:
-                            obj.setCourseNorm(Integer.parseInt(aValue.toString()));
-                            break;
-                        case 3:
-                            if(aValue=="хлопці")
-                                obj.setGenderNorm(0);
-                            else
-                                obj.setGenderNorm(1);
-                            break;
-                        case 4:
-                            if(aValue=="Звичайна")
-                                obj.setHealthGroupNorm(0);
-                            else
-                                obj.setHealthGroupNorm(1);
-                            break;
-                        case 5:
-                            obj.setExcellentMark(Double.parseDouble(aValue.toString()));
-                            break;
-                        case 6:
-                            obj.setGoodMark(Double.parseDouble(aValue.toString()));
-                            break;
-                        case 7:
-                            obj.setSatisfactorilyMark(Double.parseDouble(aValue.toString()));
-                            break;
-                    }
-                    ch.updateInTable(obj);
                     if(aValue.toString().equals("") &&
-                            JOptionPane.showConfirmDialog(null,"видалити рядок?","Поле не може бути пустим",
+                            JOptionPane.showConfirmDialog(null,"Видалити вимоги до нормативу?\nТакож будуть видалені його результати !","Поле не може бути пустим",
                                     JOptionPane.YES_NO_OPTION)==0){
-                        ch.deleteFromTable(obj);
-                        getSportNormModel();
+                        deleteRow(4,obj);
+                    }else{
+                        switch(column){
+                            case 1:
+                                for(SportNormName snn:(List<SportNormName>)sportNormNameList)
+                                    if(snn.getSportNormName().equals(aValue))
+                                        obj.setSportNormNameId(snn);
+                                break;
+                            case 2:
+                                obj.setCourseNorm(Integer.parseInt(aValue.toString()));
+                                break;
+                            case 3:
+                                if(aValue=="хлопці")
+                                    obj.setGenderNorm(0);
+                                else
+                                    obj.setGenderNorm(1);
+                                break;
+                            case 4:
+                                if(aValue=="Звичайна")
+                                    obj.setHealthGroupNorm(0);
+                                else
+                                    obj.setHealthGroupNorm(1);
+                                break;
+                            case 5:
+                                obj.setExcellentMark(Double.parseDouble(aValue.toString()));
+                                break;
+                            case 6:
+                                obj.setGoodMark(Double.parseDouble(aValue.toString()));
+                                break;
+                            case 7:
+                                obj.setSatisfactorilyMark(Double.parseDouble(aValue.toString()));
+                                break;
+                        }
+                        ch.updateInTable(obj);
                     }
+
+
                 }
             };
             table2.setModel(sportNorm_tm);
@@ -654,10 +666,9 @@ public class MainForm extends JFrame {
                 public void setValueAt(Object aValue, int row, int column) {
                     Result obj =(Result)resultList.get(row);
                     if(aValue.toString().equals("") &&
-                            JOptionPane.showConfirmDialog(null,"видалити рядок?","Поле не може бути пустим",
+                            JOptionPane.showConfirmDialog(null,"Видалити результат ?","Поле не може бути пустим",
                                     JOptionPane.YES_NO_OPTION)==0){
-                        ch.deleteFromTable(obj);
-                        getResultModel(studentId);
+                        deleteRow(5,obj);
                     }else{
                         switch(column){
                             case 1:
