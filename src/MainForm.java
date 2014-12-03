@@ -127,7 +127,7 @@ public class MainForm extends JFrame {
                 result.setStudentId(tml.currentResultStudent);
                 result.setResult(0);
                 ch.addToTable(result);
-                tml.getResultModel(tml.currentResultStudent.getStudentId());
+                tml.getResultModel(tml.studentsId.get(comboBox6.getSelectedIndex()));
                 break;
         }
         table2.updateUI();
