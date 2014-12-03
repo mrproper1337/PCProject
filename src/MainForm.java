@@ -1,4 +1,5 @@
 
+import org.jfree.data.xy.XYSeries;
 import pojo.*;
 import java.awt.event.*;
 import java.awt.*;
@@ -94,13 +95,13 @@ public class MainForm extends JFrame {
                 group.setGroupName("new");
                 ch.addToTable(group);
                 tml.getGroupModel(true);
+                tml.setGroupCombo();
                 break;
             case 1:
                 Student student = new Student();
                 student.setName("new");
                 student.setGroupId((Group) tml.groupList.get(comboBox5.getSelectedIndex()));
                 ch.addToTable(student);
-                tml.setGroupCombo();
                 tml.getStudentModel(true);
                 break;
             case 2:
@@ -132,8 +133,6 @@ public class MainForm extends JFrame {
         }
         table2.updateUI();
         tml.getGroupModel(false);
-        tml.setGroupCombo();
-        tml.setSNCombo();
     }
     private void deleteRow(int modelKey,Object toRemove){
         tml.lastQuery = "";
@@ -211,33 +210,42 @@ public class MainForm extends JFrame {
 
                 @Override
                 public int getColumnCount() {
-                    return 2;
+                    return 1;
                 }
 
                 @Override
                 public String getColumnName(int columnIndex) {
-                    if(columnIndex==0)return "ID";
-                    else return "Група";
+                    return "Група";
                 }
 
                 @Override
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
-                    return editable && columnIndex == 1;
+                    if(!editable){
+                        Group currGroup = (Group)groupList.get(rowIndex);
+                        double[] averageResults = new double[4];
+                        int check = checkBox1.isSelected() ? 1 : 0;
+                        List currStGr = ch.loadTable("from Student where(" +
+                                "groupId = "+currGroup.getGroupId()+
+                                " and " +
+                                "gender ="+comboBox2.getSelectedIndex()+
+                                " and " +
+                                "healthGroup = "+check+
+                                ")");
+
+                        for(Student st:(List<Student>)currStGr){
+
+                        }
+
+                        XYSeries groupSeries = new XYSeries(currGroup.getGroupName());
+                        groupList.get(rowIndex);
+                    }
+                    return editable;
                 }
 
                 @Override
                 public Object getValueAt(int rowIndex, int columnIndex) {
-                    Group ret;
-                    if(columnIndex==0){
-                        ret = (pojo.Group)groupList.get(rowIndex);
-                        return ret.getGroupId();
-                    }
-
-                    else{
-                        ret = (pojo.Group)groupList.get(rowIndex);
-                        return ret.getGroupName().equals("new") ? "" : ret.getGroupName();
-                    }
-
+                    Group ret = (pojo.Group)groupList.get(rowIndex);;
+                    return ret.getGroupName().equals("new") ? "" : ret.getGroupName();
                 }
 
                 @Override
@@ -284,52 +292,52 @@ public class MainForm extends JFrame {
 
                     @Override
                     public int getColumnCount() {
-                        return 4;
+                        return editable?3:1;
                     }
 
                     @Override
                     public String getColumnName(int columnIndex) {
+                        if(editable)
                         switch(columnIndex){
                             case 0:
-                                return "ID";
-                            case 1:
                                 return "П.І.Б.";
-                            case 2:
+                            case 1:
                                 return "Стать";
-                            case 3:
+                            case 2:
                                 return "Група здоров'я";
 
                         }
-                        return null;
+                        return "П.І.Б.";
                     }
 
                     @Override
                     public boolean isCellEditable(int rowIndex, int columnIndex) {
-                        return columnIndex!=0 && editable;
+                        return editable;
                     }
 
                     @Override
                     public Object getValueAt(int rowIndex, int columnIndex) {
                         Student res=(pojo.Student)studentList.get(rowIndex);
+                        if(editable)
                         switch(columnIndex){
                             case 0:
-                                return res.getStudentId();
-                            case 1:
                                 if(res.getName().equals("new"))
                                     return "";
                                 return res.getName();
-                            case 2:
+                            case 1:
                                 if(res.getGender()==0 || res.getName().equals("new"))
                                     return "хлопець";
                                 else
                                     return "дівчина";
-                            case 3:
+                            case 2:
                                 if(res.getHealthGroup()==0 || res.getName().equals("new"))
                                     return "Звичайна";
                                 else
                                     return "Спецгрупа";
                         }
-                        return "";
+                        if(res.getName().equals("new"))
+                            return "";
+                        return res.getName();
                     }
 
                     @Override
@@ -341,16 +349,16 @@ public class MainForm extends JFrame {
                             deleteRow(2,obj);
                         else{
                             switch(column){
-                                case 1:
+                                case 0:
                                     obj.setName(aValue.toString());
                                     break;
-                                case 2:
+                                case 1:
                                     if(aValue=="хлопець")
                                         obj.setGender(0);
                                     else
                                         obj.setGender(1);
                                     break;
-                                case 3:
+                                case 2:
                                     if(aValue=="Звичайна")
                                         obj.setHealthGroup(0);
                                     else
@@ -369,12 +377,12 @@ public class MainForm extends JFrame {
                     ArrayList<String> cbItem = new ArrayList();
                     cbItem.add("хлопець");
                     cbItem.add("дівчина");
-                    initInsertedCombos(table2,2,cbItem);
+                    initInsertedCombos(table2,1,cbItem);
                     cbItem.clear();
 
                     cbItem.add("Звичайна");
                     cbItem.add("Спецгрупа");
-                    initInsertedCombos(table2,3,cbItem);
+                    initInsertedCombos(table2,2,cbItem);
                     cbItem.clear();
                 }
                 else table1.setModel(students_tm);
@@ -394,33 +402,24 @@ public class MainForm extends JFrame {
 
                 @Override
                 public int getColumnCount() {
-                    return 2;
+                    return 1;
                 }
 
                 @Override
                 public String getColumnName(int columnIndex) {
-                    if(columnIndex==0)return "ID";
-                    else return "Норматив";
+                    return "Норматив";
                 }
 
                 @Override
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
-                    return columnIndex == 1;
+                    return true;
                 }
 
                 @Override
                 public Object getValueAt(int rowIndex, int columnIndex) {
                     SportNormName ret;
-                    if(columnIndex==0){
-                        ret = (SportNormName)sportNormNameList.get(rowIndex);
-                        return ret.getSportNormNameId();
-                    }
-
-                    else{
-                        ret = (SportNormName)sportNormNameList.get(rowIndex);
-                        return ret.getSportNormName().equals("new") ? "" : ret.getSportNormName();
-                    }
-
+                    ret = (SportNormName)sportNormNameList.get(rowIndex);
+                    return ret.getSportNormName().equals("new") ? "" : ret.getSportNormName();
                 }
 
                 @Override
@@ -453,27 +452,25 @@ public class MainForm extends JFrame {
 
                 @Override
                 public int getColumnCount() {
-                    return 8;
+                    return 7;
                 }
 
                 @Override
                 public String getColumnName(int columnIndex) {
                     switch(columnIndex) {
                         case 0:
-                            return "ID";
-                        case 1:
                             return "Норматив";
-                        case 2:
+                        case 1:
                             return "Курс";
-                        case 3:
+                        case 2:
                             return "Стать";
-                        case 4:
+                        case 3:
                             return "Група здоров'я";
-                        case 5:
+                        case 4:
                             return "Відмінно";
-                        case 6:
+                        case 5:
                             return "Добре";
-                        case 7:
+                        case 6:
                             return "Задовільно";
                     }
                     return "";
@@ -481,7 +478,7 @@ public class MainForm extends JFrame {
 
                 @Override
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
-                    return columnIndex != 0;
+                    return true;
                 }
 
                 @Override
@@ -493,30 +490,28 @@ public class MainForm extends JFrame {
 
                     switch(columnIndex){
                         case 0:
-                            return res.getSportNormId();
-                        case 1:
                             if(newRow)return sportNormNameList.get(0);
                             return res.getSportNormNameId().getSportNormName();
-                        case 2:
+                        case 1:
                             if(newRow)return 1;
                             return res.getCourseNorm();
-                        case 3:
+                        case 2:
                             if(res.getGenderNorm()==0 || newRow)
                                 return "хлопці";
                             else
                                 return "дівчата";
-                        case 4:
+                        case 3:
                             if(res.getHealthGroupNorm()==0 || newRow)
                                 return "Звичайна";
                             else
                                 return "Спецгрупа";
-                        case 5:
+                        case 4:
                             if(newRow) return "";
                             return res.getExcellentMark();
-                        case 6:
+                        case 5:
                             if(newRow) return "";
                             return res.getGoodMark();
-                        case 7:
+                        case 6:
                             if(newRow) return "";
                             return res.getSatisfactorilyMark();
                     }
@@ -532,33 +527,33 @@ public class MainForm extends JFrame {
                         deleteRow(4,obj);
                     }else{
                         switch(column){
-                            case 1:
+                            case 0:
                                 for(SportNormName snn:(List<SportNormName>)sportNormNameList)
                                     if(snn.getSportNormName().equals(aValue))
                                         obj.setSportNormNameId(snn);
                                 break;
-                            case 2:
+                            case 1:
                                 obj.setCourseNorm(Integer.parseInt(aValue.toString()));
                                 break;
-                            case 3:
+                            case 2:
                                 if(aValue=="хлопці")
                                     obj.setGenderNorm(0);
                                 else
                                     obj.setGenderNorm(1);
                                 break;
-                            case 4:
+                            case 3:
                                 if(aValue=="Звичайна")
                                     obj.setHealthGroupNorm(0);
                                 else
                                     obj.setHealthGroupNorm(1);
                                 break;
-                            case 5:
+                            case 4:
                                 obj.setExcellentMark(Double.parseDouble(aValue.toString()));
                                 break;
-                            case 6:
+                            case 5:
                                 obj.setGoodMark(Double.parseDouble(aValue.toString()));
                                 break;
-                            case 7:
+                            case 6:
                                 obj.setSatisfactorilyMark(Double.parseDouble(aValue.toString()));
                                 break;
                         }
@@ -574,24 +569,24 @@ public class MainForm extends JFrame {
 
             for(SportNormName snn:(List<SportNormName>)sportNormNameList)
                 cbItem.add(snn.getSportNormName());
-            initInsertedCombos(table2,1,cbItem,160);
+            initInsertedCombos(table2,0,cbItem,160);
             cbItem.clear();
 
             cbItem.add(1);
             cbItem.add(2);
             cbItem.add(3);
             cbItem.add(4);
-            initInsertedCombos(table2, 2, cbItem, 40);
+            initInsertedCombos(table2, 1, cbItem, 40);
             cbItem.clear();
 
             cbItem.add("хлопці");
             cbItem.add("дівчата");
-            initInsertedCombos(table2,3,cbItem,80);
+            initInsertedCombos(table2,2,cbItem,80);
             cbItem.clear();
 
             cbItem.add("Звичайна");
             cbItem.add("Спецгрупа");
-            initInsertedCombos(table2,4,cbItem,90);
+            initInsertedCombos(table2,3,cbItem,90);
             cbItem.clear();
 
         }
@@ -620,19 +615,17 @@ public class MainForm extends JFrame {
 
                 @Override
                 public int getColumnCount() {
-                    return 4;
+                    return 3;
                 }
 
                 @Override
                 public String getColumnName(int columnIndex) {
                     switch(columnIndex) {
                         case 0:
-                            return "ID";
-                        case 1:
                             return "Норматив";
-                        case 2:
+                        case 1:
                             return "Курс";
-                        case 3:
+                        case 2:
                             return "Результат";
                     }
                     return "";
@@ -640,7 +633,7 @@ public class MainForm extends JFrame {
 
                 @Override
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
-                    return columnIndex != 0;
+                    return true;
                 }
 
                 @Override
@@ -648,14 +641,12 @@ public class MainForm extends JFrame {
                     Result res=(Result)resultList.get(rowIndex);
                     switch(columnIndex){
                         case 0:
-                            return res.getResultId();
-                        case 1:
                             if(res.getResult()==0)return sportNormNameList.get(0);
                             return res.getSportNormId().getSportNormNameId().getSportNormName();
-                        case 2:
+                        case 1:
                             if(res.getResult()==0) return 1;
                             return res.getSportNormId().getCourseNorm();
-                        case 3:
+                        case 2:
                             if(res.getResult()==0) return "";
                             return res.getResult();
                     }
@@ -671,19 +662,19 @@ public class MainForm extends JFrame {
                         deleteRow(5,obj);
                     }else{
                         switch(column){
-                            case 1:
+                            case 0:
                                 for(SportNorm asn:(List<SportNorm>) currentAllowedNorms)
                                     if(asn.getSportNormNameId().getSportNormName().equals(aValue) &&
-                                            asn.getCourseNorm()==Integer.parseInt(getValueAt(row,2).toString()))
+                                            asn.getCourseNorm()==Integer.parseInt(getValueAt(row,1).toString()))
                                         obj.setSportNormId(asn);
                                 break;
-                            case 2:
+                            case 1:
                                 for(SportNorm asn:(List<SportNorm>) currentAllowedNorms)
-                                    if(asn.getSportNormNameId().getSportNormName().equals(getValueAt(row,1).toString()) &&
+                                    if(asn.getSportNormNameId().getSportNormName().equals(getValueAt(row,0).toString()) &&
                                             asn.getCourseNorm()==Integer.parseInt(aValue.toString()))
                                         obj.setSportNormId(asn);
                                 break;
-                            case 3:
+                            case 2:
                                 obj.setResult(Double.parseDouble(aValue.toString()));
                                 break;
                         }
@@ -699,13 +690,13 @@ public class MainForm extends JFrame {
             for(SportNorm allowed:(List<SportNorm>) currentAllowedNorms)
                 if(!cbItem.contains(allowed.getSportNormNameId().getSportNormName()))
                     cbItem.add(allowed.getSportNormNameId().getSportNormName());
-            initInsertedCombos(table2,1,cbItem,160);
+            initInsertedCombos(table2,0,cbItem,160);
             cbItem.clear();
 
             for(SportNorm allowed:(List<SportNorm>) currentAllowedNorms)
                 if(!cbItem.contains(allowed.getCourseNorm()))
                     cbItem.add(allowed.getCourseNorm());
-            initInsertedCombos(table2,2,cbItem,40);
+            initInsertedCombos(table2,1,cbItem,40);
             cbItem.clear();
 
         }
@@ -953,7 +944,7 @@ public class MainForm extends JFrame {
                     panel3.setLayout(panel3Layout);
                     panel3Layout.setHorizontalGroup(
                         panel3Layout.createParallelGroup()
-                            .addGap(0, 476, Short.MAX_VALUE)
+                            .addGap(0, 0, Short.MAX_VALUE)
                     );
                     panel3Layout.setVerticalGroup(
                         panel3Layout.createParallelGroup()
@@ -996,37 +987,40 @@ public class MainForm extends JFrame {
                 panel1Layout.setHorizontalGroup(
                     panel1Layout.createParallelGroup()
                         .addGroup(panel1Layout.createSequentialGroup()
-                            .addContainerGap()
-                            .addGroup(panel1Layout.createParallelGroup()
-                                .addComponent(scrollPane1)
-                                .addGroup(panel1Layout.createSequentialGroup()
-                                    .addComponent(comboBox1, GroupLayout.PREFERRED_SIZE, 173, GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(comboBox2, GroupLayout.PREFERRED_SIZE, 173, GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(checkBox1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                            .addGroup(panel1Layout.createParallelGroup()
-                                .addComponent(comboBox3, GroupLayout.PREFERRED_SIZE, 173, GroupLayout.PREFERRED_SIZE)
-                                .addComponent(panel3, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+                                .addContainerGap()
+                                .addGroup(panel1Layout.createParallelGroup()
+                                        .addGroup(panel1Layout.createSequentialGroup()
+                                                .addComponent(comboBox1, GroupLayout.PREFERRED_SIZE, 115, GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(comboBox2, GroupLayout.PREFERRED_SIZE, 107, GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(checkBox1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addGap(247, 247, 247)
+                                                .addComponent(comboBox3, GroupLayout.PREFERRED_SIZE, 173, GroupLayout.PREFERRED_SIZE)
+                                                .addGap(220, 220, 220))
+                                        .addGroup(GroupLayout.Alignment.TRAILING, panel1Layout.createSequentialGroup()
+                                                .addComponent(scrollPane1, GroupLayout.PREFERRED_SIZE, 336, GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(panel3, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addContainerGap())))
                 );
+                panel1Layout.linkSize(SwingConstants.HORIZONTAL, new Component[] {comboBox1, comboBox2});
                 panel1Layout.setVerticalGroup(
                     panel1Layout.createParallelGroup()
                         .addGroup(panel1Layout.createSequentialGroup()
                             .addContainerGap()
-                            .addGroup(panel1Layout.createParallelGroup()
-                                .addComponent(scrollPane1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                            .addGroup(panel1Layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
+                                .addComponent(scrollPane1)
                                 .addComponent(panel3, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                             .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                             .addGroup(panel1Layout.createParallelGroup()
                                 .addComponent(comboBox1)
                                 .addComponent(checkBox1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGroup(GroupLayout.Alignment.TRAILING, panel1Layout.createSequentialGroup()
-                                    .addGap(0, 0, Short.MAX_VALUE)
-                                    .addComponent(comboBox2, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE))
                                 .addGroup(panel1Layout.createSequentialGroup()
-                                    .addComponent(comboBox3, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
-                                    .addGap(0, 0, Short.MAX_VALUE)))
+                                        .addGroup(panel1Layout.createParallelGroup()
+                                                .addComponent(comboBox2, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(comboBox3, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE))
+                                        .addGap(0, 0, Short.MAX_VALUE)))
                             .addContainerGap())
                 );
             }
@@ -1132,10 +1126,7 @@ public class MainForm extends JFrame {
         contentPane.setLayout(contentPaneLayout);
         contentPaneLayout.setHorizontalGroup(
             contentPaneLayout.createParallelGroup()
-                .addGroup(contentPaneLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .addComponent(tabbedPane1, GroupLayout.PREFERRED_SIZE, 936, GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(tabbedPane1, GroupLayout.DEFAULT_SIZE, 936, Short.MAX_VALUE)
         );
         contentPaneLayout.setVerticalGroup(
             contentPaneLayout.createParallelGroup()

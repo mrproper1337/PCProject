@@ -7,7 +7,7 @@ new FormModel {
 			"JavaCodeGenerator.defaultVariableModifiers": 0
 		}
 		add( new FormWindow( "javax.swing.JFrame", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-			"$horizontalGroup": "par l {seq l {space :::p, comp tabbedPane1:::p:936:p, space :::x}}"
+			"$horizontalGroup": "par l {comp tabbedPane1::l::936:x}"
 			"$verticalGroup": "par l {seq l {comp tabbedPane1:::p::p, space :0:0:x}}"
 		} ) {
 			name: "this"
@@ -18,8 +18,8 @@ new FormModel {
 			add( new FormContainer( "javax.swing.JTabbedPane", new FormLayoutManager( class javax.swing.JTabbedPane ) ) {
 				name: "tabbedPane1"
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-					"$horizontalGroup": "par l {seq l {space :::p, par l {comp scrollPane1:::::x, seq l {comp comboBox1:::p:173:p, space :::p, comp comboBox2:::p:173:p, space :::p, comp checkBox1:::::x}}, space :::p, par l {comp comboBox3:::p:173:p, comp panel3:::p::p}}}"
-					"$verticalGroup": "par l {seq l {space :::p, par l {comp scrollPane1:::p::p, comp panel3:::::x}, space :::p, par l {comp comboBox1:::::x, comp checkBox1::l:::x, seq t {space :0:0:x, comp comboBox2:::p:32:p}, seq {comp comboBox3:::p:32:p, space :0:0:x}}, space :::p}}"
+					"$horizontalGroup": "par l {seq l {space :::p, par l {seq {comp comboBox1:2::p:115:p, space :::p, comp comboBox2:2::p:107:p, space :::p, comp checkBox1:::::x, space :p:247:p, comp comboBox3:::p:173:p, space :p:220:p}, seq t {comp scrollPane1:::p:336:p, space :::p, comp panel3:::::x, space :::p}}}}"
+					"$verticalGroup": "par l {seq l {space :::p, par l:::p {comp scrollPane1:::::x, comp panel3:::::x}, space :::p, par l {comp comboBox1::l:::x, comp checkBox1::l:::x, seq {par l {comp comboBox2:::p:32:p, comp comboBox3:::p:32:p}, space :0:0:x}}, space :::p}}"
 				} ) {
 					name: "panel1"
 					add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
@@ -32,7 +32,7 @@ new FormModel {
 						} )
 					} )
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-						"$horizontalGroup": "par l {space :0:476:x}"
+						"$horizontalGroup": "par l {space :0:0:x}"
 						"$verticalGroup": "par l {space :0:0:x}"
 					} ) {
 						name: "panel3"
