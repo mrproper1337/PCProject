@@ -11,6 +11,7 @@ import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.table.*;
 
+
 /**
  * @author Nazar Rudenko
  * https://github.com/mrproper1337
@@ -232,10 +233,44 @@ public class MainForm extends JFrame {
                                 "healthGroup = "+check+
                                 ")");
 
-                        for(Student st:(List<Student>)currStGr){
+                        List currSP = ch.loadTable("from SportNorm where " +
+                                "(sportNormNameId =" +snId.get(comboBox3.getSelectedIndex())+
+                                " and " +
+                                "genderNorm =" +comboBox2.getSelectedIndex()+
+                                " and " +
+                                "healthGroupNorm =" +check+
+                                ")");
 
+
+                        int[] rc = new int[4];
+                        for(Result res:(List<Result>)ch.loadTable("from Result")){
+                            if(!currStGr.contains(res.getStudentId()) || !currSP.contains(res.getSportNormId()) ||
+                                    res.getStudentId().getGroupId()==currGroup){
+
+                                if(res.getSportNormId().getCourseNorm()==1){
+                                    averageResults[0] += res.getResult();
+                                    rc[0]++;
+                                }
+                                if(res.getSportNormId().getCourseNorm()==2){
+                                    averageResults[1] += res.getResult();
+                                    rc[1]++;
+                                }
+                                if(res.getSportNormId().getCourseNorm()==3){
+                                    averageResults[2] += res.getResult();
+                                    rc[2]++;
+                                }
+                                if(res.getSportNormId().getCourseNorm()==4){
+                                    averageResults[3] += res.getResult();
+                                    rc[3]++;
+                                }
+                                for(int i = 0;i<4;i++){
+
+                                    if(rc[i]!=0)averageResults[i]/=rc[i];
+                                }
+
+                            }
                         }
-
+                        //for(double i:averageResults)System.out.println(i);
                         XYSeries groupSeries = new XYSeries(currGroup.getGroupName());
                         groupList.get(rowIndex);
                     }
@@ -985,42 +1020,42 @@ public class MainForm extends JFrame {
                 GroupLayout panel1Layout = new GroupLayout(panel1);
                 panel1.setLayout(panel1Layout);
                 panel1Layout.setHorizontalGroup(
-                    panel1Layout.createParallelGroup()
-                        .addGroup(panel1Layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addGroup(panel1Layout.createParallelGroup()
-                                        .addGroup(panel1Layout.createSequentialGroup()
-                                                .addComponent(comboBox1, GroupLayout.PREFERRED_SIZE, 115, GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(comboBox2, GroupLayout.PREFERRED_SIZE, 107, GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(checkBox1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                .addGap(247, 247, 247)
-                                                .addComponent(comboBox3, GroupLayout.PREFERRED_SIZE, 173, GroupLayout.PREFERRED_SIZE)
-                                                .addGap(220, 220, 220))
-                                        .addGroup(GroupLayout.Alignment.TRAILING, panel1Layout.createSequentialGroup()
-                                                .addComponent(scrollPane1, GroupLayout.PREFERRED_SIZE, 336, GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(panel3, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                .addContainerGap())))
-                );
-                panel1Layout.linkSize(SwingConstants.HORIZONTAL, new Component[] {comboBox1, comboBox2});
-                panel1Layout.setVerticalGroup(
-                    panel1Layout.createParallelGroup()
-                        .addGroup(panel1Layout.createSequentialGroup()
-                            .addContainerGap()
-                            .addGroup(panel1Layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-                                .addComponent(scrollPane1)
-                                .addComponent(panel3, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                            .addGroup(panel1Layout.createParallelGroup()
-                                .addComponent(comboBox1)
-                                .addComponent(checkBox1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        panel1Layout.createParallelGroup()
                                 .addGroup(panel1Layout.createSequentialGroup()
+                                        .addContainerGap()
                                         .addGroup(panel1Layout.createParallelGroup()
-                                                .addComponent(comboBox2, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
-                                                .addComponent(comboBox3, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE))
-                                        .addGap(0, 0, Short.MAX_VALUE)))
+                                                .addGroup(panel1Layout.createSequentialGroup()
+                                                        .addComponent(comboBox1, GroupLayout.PREFERRED_SIZE, 115, GroupLayout.PREFERRED_SIZE)
+                                                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                                        .addComponent(comboBox2, GroupLayout.PREFERRED_SIZE, 107, GroupLayout.PREFERRED_SIZE)
+                                                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                                        .addComponent(checkBox1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                        .addGap(247, 247, 247)
+                                                        .addComponent(comboBox3, GroupLayout.PREFERRED_SIZE, 173, GroupLayout.PREFERRED_SIZE)
+                                                        .addGap(220, 220, 220))
+                                                .addGroup(GroupLayout.Alignment.TRAILING, panel1Layout.createSequentialGroup()
+                                                        .addComponent(scrollPane1, GroupLayout.PREFERRED_SIZE, 336, GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(panel3, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                        .addContainerGap())))
+                );
+                panel1Layout.linkSize(SwingConstants.HORIZONTAL, new Component[]{comboBox1, comboBox2});
+                panel1Layout.setVerticalGroup(
+                        panel1Layout.createParallelGroup()
+                                .addGroup(panel1Layout.createSequentialGroup()
+                                        .addContainerGap()
+                                        .addGroup(panel1Layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
+                                                .addComponent(scrollPane1)
+                                                .addComponent(panel3, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(panel1Layout.createParallelGroup()
+                                                .addComponent(comboBox1)
+                                                .addComponent(checkBox1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addGroup(panel1Layout.createSequentialGroup()
+                                                        .addGroup(panel1Layout.createParallelGroup()
+                                                                .addComponent(comboBox2, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(comboBox3, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE))
+                                    .addGap(0, 0, Short.MAX_VALUE)))
                             .addContainerGap())
                 );
             }
