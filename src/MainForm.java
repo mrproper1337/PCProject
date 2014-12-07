@@ -244,33 +244,41 @@ public class MainForm extends JFrame {
 
                         int[] rc = new int[4];
                         for(Result res:(List<Result>)ch.loadTable("from Result")){
-                            if(!currStGr.contains(res.getStudentId()) || !currSP.contains(res.getSportNormId()) ||
+                            if(currStGr.contains(res.getStudentId()) ||
+                                    currSP.contains(res.getSportNormId()) ||
                                     res.getStudentId().getGroupId()==currGroup){
+                                switch(res.getSportNormId().getCourseNorm()){
+                                    case 1:
+                                        averageResults[0] += res.getResult();
+                                        rc[0]++;
+                                        break;
+                                    case 2:
+                                        averageResults[1] += res.getResult();
+                                        rc[1]++;
+                                        break;
+                                    case 3:
+                                        averageResults[2] += res.getResult();
+                                        rc[2]++;
+                                        break;
+                                    case 4:
+                                        averageResults[3] += res.getResult();
+                                        rc[3]++;
+                                        break;
+                                }
 
-                                if(res.getSportNormId().getCourseNorm()==1){
-                                    averageResults[0] += res.getResult();
-                                    rc[0]++;
-                                }
-                                if(res.getSportNormId().getCourseNorm()==2){
-                                    averageResults[1] += res.getResult();
-                                    rc[1]++;
-                                }
-                                if(res.getSportNormId().getCourseNorm()==3){
-                                    averageResults[2] += res.getResult();
-                                    rc[2]++;
-                                }
-                                if(res.getSportNormId().getCourseNorm()==4){
-                                    averageResults[3] += res.getResult();
-                                    rc[3]++;
-                                }
                                 for(int i = 0;i<4;i++){
+                                    System.out.println(rc[i]);
+                                    if(rc[i]!=0){
 
-                                    if(rc[i]!=0)averageResults[i]/=rc[i];
-                                }
+                                        //System.out.println(averageResults[i]);
+                                        averageResults[i]/=rc[i];
+                                        //System.out.println(averageResults[i]);
+                                    }}
+
 
                             }
                         }
-                        //for(double i:averageResults)System.out.println(i);
+
                         XYSeries groupSeries = new XYSeries(currGroup.getGroupName());
                         groupList.get(rowIndex);
                     }
