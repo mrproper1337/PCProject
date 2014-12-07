@@ -15,6 +15,9 @@ public class SportNormName {
     @Column(name = "sportNormName")
     private String sportNormName;
 
+    @Column(name = "markMode")
+    private int markMode;
+
     public int getSportNormNameId() {
         return sportNormNameId;
     }
@@ -29,5 +32,13 @@ public class SportNormName {
 
     public void setSportNormName(String sportNormName) {
         this.sportNormName = sportNormName;
+    }
+
+    public int getMarkMode() {
+        return markMode;
+    }
+
+    public void setMarkMode(int markMode) {
+        this.markMode = markMode;
     }
 }

@@ -29,6 +29,7 @@
     <table name="sport_n_name" schema="" catalog="" type="TABLE">
       <column name="sportNormNameId" sqlType="INTEGER" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
       <column name="sportNormName" sqlType="TEXT" precision="2000000000" scale="10" nullable="false" jdbcType="12"/>
+      <column name="markMode" sqlType="INT" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
       <primary-key columns="sportNormNameId"/>
       <exported-key name="#FAKE_sport_n_1" table="sport_n" schema="" catalog="" columns="sportNormNameId"/>
     </table>
