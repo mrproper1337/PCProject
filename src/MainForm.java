@@ -304,8 +304,8 @@ public class MainForm extends JFrame {
 
         XYSeries groupSeries = new XYSeries("Середні показники "+currGroup.getGroupName());
         SportNormName  spncurr = (SportNormName)ch.loadTable("from SportNormName").get(comboBox3.getSelectedIndex());
-        String results = "Результати по курсам : ";
-        String marks = "Оцінки по курсам : ";
+        String results = "Середні результати по курсам : ";
+        String marks = "Середні оцінки по курсам : ";
         for(int i = 1;i<=4;i++){
             groupSeries.add(i,spncurr.getMarkMode()==0?averageResults[i-1]*-1:averageResults[i-1]);
             SportNorm resNorm = null;
@@ -1154,7 +1154,7 @@ public class MainForm extends JFrame {
 
                 //======== panel3 ========
                 {
-                    panel3.setBackground(new Color(204, 204, 255));
+                    panel3.setBackground(Color.white);
                     panel3.setLayout(new BorderLayout());
                 }
 
@@ -1197,11 +1197,10 @@ public class MainForm extends JFrame {
                 });
 
                 //---- label1 ----
-                label1.setText("\u041d\u0435\u043c\u0430\u0454 \u0434\u0430\u043d\u043d\u0438\u0445");
-                label1.setFont(new Font("Segoe UI", Font.ITALIC, 16));
+                label1.setFont(new Font("Segoe UI", Font.ITALIC, 14));
 
                 //---- label2 ----
-                label2.setFont(new Font("Segoe UI", Font.ITALIC, 16));
+                label2.setFont(new Font("Segoe UI", Font.ITALIC, 14));
 
                 GroupLayout panel1Layout = new GroupLayout(panel1);
                 panel1.setLayout(panel1Layout);
