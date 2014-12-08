@@ -64,6 +64,7 @@ new FormModel {
 					} )
 					add( new FormComponent( "javax.swing.JLabel" ) {
 						name: "label2"
+						"font": new java.awt.Font( "Segoe UI", 2, 16 )
 					} )
 				}, new FormLayoutConstraints( null ) {
 					"title": "Перегляд"
