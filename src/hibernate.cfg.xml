@@ -11,7 +11,7 @@
         </property>
         <!-- Assume test is the database name -->
         <property name="hibernate.connection.url">
-            jdbc:sqlite:C:/Users/mrproper/IdeaProjects/PCProject/res/PC_DB.sqlite
+            jdbc:sqlite:D:/PC_DB.sqlite
         </property>
         <!-- List of XML mapping files -->
         <mapping class="pojo.Group" />

@@ -29,7 +29,7 @@ public class ConnectHibernate {
 
     public List loadTable(String request){
         List resultList = null;
-//hibernate load
+
         Session session = factory.openSession();
         Transaction transaction = null;
         try {
