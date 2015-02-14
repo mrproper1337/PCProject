@@ -1,25 +1,9 @@
-
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.xy.XYDataset;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
-
 import pojo.*;
 import java.awt.event.*;
 import java.awt.*;
-import java.awt.geom.Rectangle2D;
-import java.util.*;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.GroupLayout;
-import javax.swing.event.CellEditorListener;
-import javax.swing.event.ChangeEvent;
-import javax.swing.table.*;
 
 
 /**
@@ -29,27 +13,30 @@ import javax.swing.table.*;
 public class MainForm extends JFrame {
 
 
-    ModelLoader tml;
+    ModelLoader read_ml,write_ml;
+    GraphMaker gm;
     boolean listenerIsStopped;
 
     public MainForm() {
 
-        tml = new ModelLoader();
-        listenerIsStopped = tml.listenerIsStopped;
+        read_ml = new ModelLoader(table2,0,0,0,0);
+        write_ml = new ModelLoader(table2,0);
+        gm = new GraphMaker(panel3,label1,label2, read_ml);
+        listenerIsStopped = read_ml.listenerIsStopped;
         initComponents();
-        table1.setModel(tml.getGroupModel(false));
-        table2.setModel(tml.getGroupModel(true));
+        table1.setModel(read_ml.getGroupModel(false));
+        table2.setModel(read_ml.getGroupModel(true));
 
 
-//        tml.getGroupModel(false);
-//        tml.getGroupModel(true);
-//        tml.setGroupCombo();
-//        tml.setSNCombo();
+//        read_ml.getGroupModel(false);
+//        read_ml.getGroupModel(true);
+//        read_ml.setGroupCombo();
+//        read_ml.setSNCombo();
     }
     private void applyReadFormFilter(ItemEvent e) {
         if(!listenerIsStopped){
-            if(comboBox1.getSelectedIndex() == 0)tml.getGroupModel(false);
-            else tml.getStudentModel(false);
+            if(comboBox1.getSelectedIndex() == 0) read_ml.getGroupModel(false);
+            else read_ml.getStudentModel(false);
             table1.updateUI();
         }
     }
@@ -59,22 +46,22 @@ public class MainForm extends JFrame {
 
         switch(comboBox4.getSelectedIndex()){
             case 0:
-                tml.getGroupModel(true);
+                read_ml.getGroupModel(true);
                 break;
             case 1:
                 comboBox5.setEnabled(true);
-                tml.getStudentModel(true);
+                read_ml.getStudentModel(true);
                 break;
             case 2:
-                tml.getSNNameModel();
+                read_ml.getSNNameModel();
                 break;
             case 3:
-                tml.getSportNormModel();
+                read_ml.getSportNormModel();
                 break;
             case 4:
                 comboBox5.setEnabled(true);
                 comboBox6.setEnabled(true);
-                tml.getResultModel(tml.studentsId.get(0));
+                read_ml.getResultModel(read_ml.studentsId.get(0));
                 break;
         }
         table2.updateUI();
@@ -84,23 +71,23 @@ public class MainForm extends JFrame {
             if(e.getSource()==comboBox5){
                 listenerIsStopped = true;
                 comboBox6.removeAllItems();
-                tml.studentsId.clear();
+                read_ml.studentsId.clear();
                 for(Student s:(List<Student>)ch.loadTable("from Student where " +
-                                "groupId = "+tml.groupsId.get(comboBox5.getSelectedIndex())
+                                "groupId = " + read_ml.groupsId.get(comboBox5.getSelectedIndex())
                 ))
                 {
                     comboBox6.addItem(s.getName());
-                    tml.studentsId.add(s.getStudentId());
+                    read_ml.studentsId.add(s.getStudentId());
                 }
                 listenerIsStopped = false;
-                tml.getResultModel(tml.studentsId.get(0));
+                read_ml.getResultModel(read_ml.studentsId.get(0));
             }
-            else tml.getResultModel(tml.studentsId.get(comboBox6.getSelectedIndex()));
+            else read_ml.getResultModel(read_ml.studentsId.get(comboBox6.getSelectedIndex()));
         }
     }
     private void applyStudentFilter(ItemEvent e) {
         if(!listenerIsStopped && comboBox4.getSelectedIndex()==1)
-            tml.getStudentModel(true);
+            read_ml.getStudentModel(true);
     }
 
 
@@ -120,46 +107,46 @@ public class MainForm extends JFrame {
             case 0:
                 Group group = new Group();
                 group.setGroupName("new");
-                tml.ch.addToTable(group);
-                tml.getGroupModel(true);
-                tml.setGroupCombo();
+                read_ml.ch.addToTable(group);
+                read_ml.getGroupModel(true);
+                read_ml.setGroupCombo();
                 break;
             case 1:
                 Student student = new Student();
                 student.setName("new");
-                student.setGroupId((Group) tml.groupList.get(comboBox5.getSelectedIndex()));
-                tml.ch.addToTable(student);
-                tml.getStudentModel(true);
+                student.setGroupId((Group) read_ml.groupList.get(comboBox5.getSelectedIndex()));
+                read_ml.ch.addToTable(student);
+                read_ml.getStudentModel(true);
                 break;
             case 2:
                 SportNormName snn = new SportNormName();
                 snn.setSportNormName("new");
-                tml.ch.addToTable(snn);
-                tml.getSNNameModel();
+                read_ml.ch.addToTable(snn);
+                read_ml.getSNNameModel();
                 break;
             case 3:
                 SportNorm sn = new SportNorm();
-                sn.setSportNormNameId((SportNormName)tml.sportNormNameList.get(0));
+                sn.setSportNormNameId((SportNormName) read_ml.sportNormNameList.get(0));
                 sn.setCourseNorm(1);
                 sn.setGenderNorm(0);
                 sn.setHealthGroupNorm(0);
                 sn.setExcellentMark(0);
                 sn.setSatisfactorilyMark(0);
                 sn.setGoodMark(0);
-                tml.ch.addToTable(sn);
-                tml.getSportNormModel();
+                read_ml.ch.addToTable(sn);
+                read_ml.getSportNormModel();
                 break;
             case 4:
                 Result result = new Result();
-                result.setSportNormId((SportNorm) tml.currentAllowedNorms.get(0));
-                result.setStudentId(tml.currentResultStudent);
+                result.setSportNormId((SportNorm) read_ml.currentAllowedNorms.get(0));
+                result.setStudentId(read_ml.currentResultStudent);
                 result.setResult(0);
-                tml.ch.addToTable(result);
-                tml.getResultModel(tml.studentsId.get(comboBox6.getSelectedIndex()));
+                read_ml.ch.addToTable(result);
+                read_ml.getResultModel(read_ml.studentsId.get(comboBox6.getSelectedIndex()));
                 break;
         }
         table2.updateUI();
-        tml.getGroupModel(false);
+        read_ml.getGroupModel(false);
     }
 
     private void initComponents() {

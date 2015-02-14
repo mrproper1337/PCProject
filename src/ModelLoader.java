@@ -1,12 +1,3 @@
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.xy.XYDataset;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
 import pojo.*;
 
 import javax.swing.*;
@@ -21,7 +12,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
@@ -29,16 +19,15 @@ import java.util.List;
 public class ModelLoader {
     ConnectHibernate ch;
     final JTable table;
-    final JPanel graph_panel;
     List<Integer> groupsId,snId,studentsId;
     List groupList, sportNormNameList, currentAllowedNorms;
     Student currentResultStudent;
     String lastQuery,currentQuery;
     boolean listenerIsStopped;
     final boolean editable;
-    int group,gender,health;
+    int group,gender,health,sport_n;
 
-    ModelLoader(final JTable table,final JPanel graph_panel,int group,int gender,int health){
+    ModelLoader(final JTable table,int group,int gender,int health,int sport_n){
         ch = new ConnectHibernate();
         lastQuery = "";
         groupsId = new ArrayList<>();
@@ -48,12 +37,12 @@ public class ModelLoader {
         listenerIsStopped = true;
 
         this.table = table;
-        this.graph_panel = graph_panel;
         this.editable = false;
 
         this.group = group;
         this.gender = gender;
         this.health = health;
+        this.sport_n = sport_n;
     }
 
     ModelLoader(final JTable table,int group){
@@ -71,10 +60,11 @@ public class ModelLoader {
         this.group = group;
     }
 
-    void updateModel(int group,int gender,int health){
+    void updateModel(int group,int gender,int health,int sport_n){
         this.group = group;
         this.gender = gender;
         this.health = health;
+        this.sport_n = sport_n;
     }
     void updateModel(int group){
         this.group = group;

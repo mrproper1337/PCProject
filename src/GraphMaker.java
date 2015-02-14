@@ -19,10 +19,14 @@ import java.util.List;
 public class GraphMaker {
 
     JPanel panel;
+    JLabel l1,l2;
     ModelLoader ml;
     ConnectHibernate ch;
 
-    GraphMaker(JPanel panel,ModelLoader ml){
+
+    GraphMaker(JPanel panel,JLabel l1,JLabel l2,ModelLoader ml){
+        this.l1 = l1;
+        this.l2 = l2;
         this.panel = panel;
         this.ml = ml;
         this.ch = ml.ch;
@@ -78,11 +82,11 @@ public class GraphMaker {
                 ")");
 
         List currSP = ch.loadTable("from SportNorm where " +
-                "(sportNormNameId =" +ml.snId.get(comboBox3.getSelectedIndex())+
+                "(sportNormNameId =" +ml.snId.get(ml.sport_n)+
                 " and " +
-                "genderNorm =" +comboBox2.getSelectedIndex()+
+                "genderNorm =" +ml.gender+
                 " and " +
-                "healthGroupNorm =" +check+
+                "healthGroupNorm =" +ml.health+
                 ")");
         int iii;
         String studQr = "",spQr = "";
@@ -136,7 +140,7 @@ public class GraphMaker {
                 averageResults[i]/=rc[i];
 
         XYSeries groupSeries = new XYSeries("Середні показники "+currGroup.getGroupName());
-        SportNormName spncurr = (SportNormName)ch.loadTable("from SportNormName").get(comboBox3.getSelectedIndex());
+        SportNormName spncurr = (SportNormName)ch.loadTable("from SportNormName").get(ml.sport_n);
         String results = "Середні результати по курсам : ";
         String marks = "Середні оцінки по курсам : ";
         for(int i = 1;i<=4;i++){
@@ -152,21 +156,20 @@ public class GraphMaker {
 
         XYDataset data = new XYSeriesCollection(groupSeries);
         JFreeChart chart = createChart((XYSeriesCollection)data,"Середні показники "+currGroup.getGroupName());
-        panel3.removeAll();
-        label1.setText(results);
-        label2.setText(marks);
-        panel3.add(new ChartPanel(chart));
-        panel3.revalidate();
+        panel.removeAll();
+        l1.setText(results);
+        l2.setText(marks);
+        panel.add(new ChartPanel(chart));
+        panel.revalidate();
     }
     private void makeStatGraph(Student currStudent){
         double[] normResults = new double[4];
-        int check = checkBox1.isSelected() ? 1 : 0;
         List currSP = ch.loadTable("from SportNorm where " +
-                "(sportNormNameId =" +tml.snId.get(comboBox3.getSelectedIndex())+
+                "(sportNormNameId =" +ml.snId.get(ml.sport_n)+
                 " and " +
-                "genderNorm =" +comboBox2.getSelectedIndex()+
+                "genderNorm =" +ml.gender+
                 " and " +
-                "healthGroupNorm =" +check+
+                "healthGroupNorm =" +ml.health+
                 ")");
         System.out.println(currSP.size()+"   hui");
         int iii;
@@ -197,7 +200,7 @@ public class GraphMaker {
                 }
             }
         XYSeries studSeries = new XYSeries("Показники : "+currStudent.getName());
-        SportNormName  spncurr = (SportNormName)ch.loadTable("from SportNormName").get(comboBox3.getSelectedIndex());
+        SportNormName  spncurr = (SportNormName)ch.loadTable("from SportNormName").get(ml.sport_n);
         String results = "Результати по курсам : ";
         String marks = "Оцінки по курсам : ";
         for(int i = 1;i<=4;i++){
@@ -213,10 +216,10 @@ public class GraphMaker {
 
         XYDataset data = new XYSeriesCollection(studSeries);
         JFreeChart chart = createChart((XYSeriesCollection)data,"Показники : "+currStudent.getName());
-        panel3.removeAll();
-        label1.setText(results);
-        label2.setText(marks);
-        panel3.add(new ChartPanel(chart));
-        panel3.revalidate();
+        panel.removeAll();
+        l1.setText(results);
+        l2.setText(marks);
+        panel.add(new ChartPanel(chart));
+        panel.revalidate();
     }
 }
