@@ -1,3 +1,12 @@
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 import pojo.*;
 
 import javax.swing.*;
@@ -12,6 +21,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
@@ -19,6 +29,7 @@ import java.util.List;
 public class ModelLoader {
     ConnectHibernate ch;
     final JTable table;
+    final JPanel gr_p;
     List<Integer> groupsId,snId,studentsId;
     List groupList, sportNormNameList, currentAllowedNorms;
     Student currentResultStudent;
@@ -27,7 +38,7 @@ public class ModelLoader {
     final boolean editable;
     int group,gender,health,sport_n;
 
-    ModelLoader(final JTable table,int group,int gender,int health,int sport_n){
+    ModelLoader(final JTable table,final JPanel gr_p,int group,int gender,int health,int sport_n){
         ch = new ConnectHibernate();
         lastQuery = "";
         groupsId = new ArrayList<>();
@@ -37,6 +48,7 @@ public class ModelLoader {
         listenerIsStopped = true;
 
         this.table = table;
+        this.gr_p = gr_p;
         this.editable = false;
 
         this.group = group;
@@ -55,6 +67,7 @@ public class ModelLoader {
         listenerIsStopped = true;
 
         this.table = table;
+        this.gr_p = null;
         this.editable = true;
 
         this.group = group;
@@ -139,7 +152,7 @@ public class ModelLoader {
             @Override
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 if(!editable)
-                    makeStatGraph((Group)groupList.get(rowIndex));
+                    gr.makeStatGraph((Group) groupList.get(rowIndex));
                 return editable;
             }
 
@@ -224,7 +237,7 @@ public class ModelLoader {
                 @Override
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
                     if(!editable)
-                        makeStatGraph((Student)studentList.get(rowIndex));
+                        gr.makeStatGraph((Student)studentList.get(rowIndex));
                     return editable;
                 }
 
@@ -673,6 +686,190 @@ public class ModelLoader {
         listenerIsStopped = false;
     }
 
+
+    class MarkCalculator {
+        GraphMaker gr;
+        Object lastStat;
+
+        MarkCalculator(Object lastStat){
+            this.lastStat = lastStat;
+        }
+
+        private  int getMark(SportNorm sn,double result){
+            int mark = 2;
+            if(sn.getSportNormNameId().getMarkMode() == 0){
+                if(result <= sn.getExcellentMark())
+                    mark = 5;
+                else if(result <= sn.getGoodMark())
+                    mark = 4;
+                else if(result <= sn.getSatisfactorilyMark())
+                    mark = 3;
+            }
+            else{
+                if(result >= sn.getExcellentMark())
+                    mark = 5;
+                else if(result >= sn.getGoodMark())
+                    mark = 4;
+                else if(result >= sn.getSatisfactorilyMark())
+                    mark = 3;
+            }
+            return mark;
+        }
+        public void makeStatGraph(Group currGroup){
+            lastStat = currGroup;
+            double[] averageResults = new double[4];
+            List currStGr = ch.loadTable("from Student where(" +
+                    "groupId = "+currGroup.getGroupId()+
+                    " and " +
+                    "gender ="+gender+
+                    " and " +
+                    "healthGroup = "+ health+
+                    ")");
+
+            List currSP = ch.loadTable("from SportNorm where " +
+                    "(sportNormNameId =" +snId.get(sport_n)+
+                    " and " +
+                    "genderNorm =" +gender+
+                    " and " +
+                    "healthGroupNorm =" +health+
+                    ")");
+            int iii;
+            String studQr = "",spQr = "";
+            iii = 0;
+            for(Student st:(List<Student>)currStGr){
+                if(iii==0)
+                    studQr = (" studentId =" + st.getStudentId());
+                else
+                    studQr += (" or studentId =" + st.getStudentId());
+                iii++;
+            }
+            iii = 0;
+            for(SportNorm sp:(List<SportNorm>)currSP){
+                if(iii==0)
+                    spQr = (" sportNormId =" + sp.getSportNormId());
+                else
+                    spQr += (" or sportNormId =" + sp.getSportNormId());
+                iii++;
+            }
+
+
+            int[] rc = new int[4];
+            if(studQr!="" && spQr!="")
+                for(Result res:(List<Result>)ch.loadTable("from Result where " +
+                                " ("+studQr+")" +
+                                " and " +
+                                " ("+spQr+")"
+                )){
+                    switch(res.getSportNormId().getCourseNorm()){
+                        case 1:
+                            averageResults[0] += res.getResult();
+                            rc[0]++;
+                            break;
+                        case 2:
+                            averageResults[1] += res.getResult();
+                            rc[1]++;
+                            break;
+                        case 3:
+                            averageResults[2] += res.getResult();
+                            rc[2]++;
+                            break;
+                        case 4:
+                            averageResults[3] += res.getResult();
+                            rc[3]++;
+                            break;
+                    }
+                }
+
+            for(int i = 0;i<4;i++)
+                if(rc[i]!=0)
+                    averageResults[i]/=rc[i];
+
+            XYSeries groupSeries = new XYSeries("Середні показники "+currGroup.getGroupName());
+            SportNormName spncurr = (SportNormName)ch.loadTable("from SportNormName").get(sport_n);
+            String results = "Середні результати по курсам : ";
+            String marks = "Середні оцінки по курсам : ";
+            for(int i = 1;i<=4;i++){
+                groupSeries.add(i,spncurr.getMarkMode()==0?averageResults[i-1]*-1:averageResults[i-1]);
+                SportNorm resNorm = null;
+                for(SportNorm sp:(List<SportNorm>)currSP)
+                    if(sp.getCourseNorm() == i)
+                        resNorm = sp;
+                results += "    "+i+"-й : "+(averageResults[i-1]==0?"н/а":averageResults[i-1]);
+                marks +=   "       "+(averageResults[i-1]==0?"н/а":getMark(resNorm,averageResults[i-1]));
+            }
+
+
+            XYDataset data = new XYSeriesCollection(groupSeries);
+            JFreeChart chart = createChart((XYSeriesCollection)data,"Середні показники "+currGroup.getGroupName());
+            panel.removeAll();
+            l1.setText(results);
+            l2.setText(marks);
+            panel.add(new ChartPanel(chart));
+            panel.revalidate();
+        }
+        public void makeStatGraph(Student currStudent){
+            lastStat = currStudent;
+            double[] normResults = new double[4];
+            List currSP = ch.loadTable("from SportNorm where " +
+                    "(sportNormNameId =" +ml.snId.get(ml.sport_n)+
+                    " and " +
+                    "genderNorm =" +ml.gender+
+                    " and " +
+                    "healthGroupNorm =" +ml.health+
+                    ")");
+            System.out.println(currSP.size()+"   hui");
+            int iii;
+            String spQr = "";
+            iii = 0;
+            for(SportNorm sp:(List<SportNorm>)currSP){
+                if(iii==0)
+                    spQr = (" sportNormId =" + sp.getSportNormId());
+                else
+                    spQr += (" or sportNormId =" + sp.getSportNormId());
+                iii++;
+            }
+            if(!spQr.equals(""))
+                for(Result res:(List<Result>)ch.loadTable("from Result where studentId ="+currStudent.getStudentId()+" and( "+spQr+" )")){
+                    switch(res.getSportNormId().getCourseNorm()){
+                        case 1:
+                            normResults[0] = res.getResult();
+                            break;
+                        case 2:
+                            normResults[1] = res.getResult();
+                            break;
+                        case 3:
+                            normResults[2] = res.getResult();
+                            break;
+                        case 4:
+                            normResults[3] = res.getResult();
+                            break;
+                    }
+                }
+            XYSeries studSeries = new XYSeries("Показники : "+currStudent.getName());
+            SportNormName  spncurr = (SportNormName)ch.loadTable("from SportNormName").get(ml.sport_n);
+            String results = "Результати по курсам : ";
+            String marks = "Оцінки по курсам : ";
+            for(int i = 1;i<=4;i++){
+                studSeries.add(i, spncurr.getMarkMode() == 0 ? normResults[i - 1] * -1 : normResults[i - 1]);
+                SportNorm resNorm = null;
+                for(SportNorm sp:(List<SportNorm>)currSP)
+                    if(sp.getCourseNorm() == i)
+                        resNorm = sp;
+                results += "    "+i+"-й : "+(normResults[i-1]==0?"н/а":normResults[i-1]);
+                marks +=   "       "+(normResults[i-1]==0?"н/а":getMark(resNorm,normResults[i-1]));
+            }
+
+
+            XYDataset data = new XYSeriesCollection(studSeries);
+            JFreeChart chart = createChart((XYSeriesCollection)data,"Показники : "+currStudent.getName());
+            panel.removeAll();
+            l1.setText(results);
+            l2.setText(marks);
+            panel.add(new ChartPanel(chart));
+            panel.revalidate();
+        }
+
+    }
     class ComboBoxPanel extends JPanel {
         ArrayList comboItems = null;
         protected JComboBox comboBox;

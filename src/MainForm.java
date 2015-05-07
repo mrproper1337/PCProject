@@ -18,50 +18,47 @@ public class MainForm extends JFrame {
     boolean listenerIsStopped;
 
     public MainForm() {
+        initComponents();       //always at first!
 
-        read_ml = new ModelLoader(table2,0,0,0,0);
+        read_ml = new ModelLoader(table1,panel1,0,0,0,0);
         write_ml = new ModelLoader(table2,0);
-        gm = new GraphMaker(panel3,label1,label2, read_ml);
+        //gm = new GraphMaker(panel3,label1,label2, read_ml);
         listenerIsStopped = read_ml.listenerIsStopped;
-        initComponents();
-        table1.setModel(read_ml.getGroupModel(false));
-        table2.setModel(read_ml.getGroupModel(true));
-
-
-//        read_ml.getGroupModel(false);
-//        read_ml.getGroupModel(true);
-//        read_ml.setGroupCombo();
-//        read_ml.setSNCombo();
+        read_ml.getGroupModel();
+        write_ml.getGroupModel();
+        read_ml.setGroupCombo(comboBox1);
+        read_ml.setSNCombo(comboBox3);
     }
     private void applyReadFormFilter(ItemEvent e) {
         if(!listenerIsStopped){
-            if(comboBox1.getSelectedIndex() == 0) read_ml.getGroupModel(false);
-            else read_ml.getStudentModel(false);
+            if(comboBox1.getSelectedIndex() == 0) read_ml.getGroupModel();
+            else read_ml.getStudentModel();
             table1.updateUI();
         }
     }
+
     private void applyWriteFormFilter(ItemEvent e) {
         comboBox5.setEnabled(false);
         comboBox6.setEnabled(false);
 
         switch(comboBox4.getSelectedIndex()){
             case 0:
-                read_ml.getGroupModel(true);
+                write_ml.getGroupModel();
                 break;
             case 1:
                 comboBox5.setEnabled(true);
-                read_ml.getStudentModel(true);
+                write_ml.getStudentModel();
                 break;
             case 2:
-                read_ml.getSNNameModel();
+                write_ml.getSNNameModel();
                 break;
             case 3:
-                read_ml.getSportNormModel();
+                write_ml.getSportNormModel();
                 break;
             case 4:
                 comboBox5.setEnabled(true);
                 comboBox6.setEnabled(true);
-                read_ml.getResultModel(read_ml.studentsId.get(0));
+                write_ml.getResultModel(write_ml.studentsId.get(0));
                 break;
         }
         table2.updateUI();
@@ -71,23 +68,23 @@ public class MainForm extends JFrame {
             if(e.getSource()==comboBox5){
                 listenerIsStopped = true;
                 comboBox6.removeAllItems();
-                read_ml.studentsId.clear();
-                for(Student s:(List<Student>)ch.loadTable("from Student where " +
-                                "groupId = " + read_ml.groupsId.get(comboBox5.getSelectedIndex())
+                write_ml.studentsId.clear();
+                for(Student s:(List<Student>)write_ml.ch.loadTable("from Student where " +
+                                "groupId = " + write_ml.groupsId.get(comboBox5.getSelectedIndex())
                 ))
                 {
                     comboBox6.addItem(s.getName());
-                    read_ml.studentsId.add(s.getStudentId());
+                    write_ml.studentsId.add(s.getStudentId());
                 }
                 listenerIsStopped = false;
-                read_ml.getResultModel(read_ml.studentsId.get(0));
+                write_ml.getResultModel(write_ml.studentsId.get(0));
             }
-            else read_ml.getResultModel(read_ml.studentsId.get(comboBox6.getSelectedIndex()));
+            else write_ml.getResultModel(write_ml.studentsId.get(comboBox6.getSelectedIndex()));
         }
     }
     private void applyStudentFilter(ItemEvent e) {
         if(!listenerIsStopped && comboBox4.getSelectedIndex()==1)
-            read_ml.getStudentModel(true);
+            write_ml.getStudentModel();
     }
 
 
@@ -96,57 +93,57 @@ public class MainForm extends JFrame {
     private void comboBox3ItemStateChanged(ItemEvent e) {
         if(!listenerIsStopped){
             if(comboBox1.getSelectedIndex() == 0)
-                makeStatGraph((Group)lastStat);
+                gm.makeStatGraph((Group)gm.lastStat);
             else
-                makeStatGraph((Student)lastStat);
+                gm.makeStatGraph((Student)gm.lastStat);
         }
     }
     private void addNewRow(ActionEvent e) {
-        lastQuery = "";
+        write_ml.lastQuery = "";
         switch(comboBox4.getSelectedIndex()){
             case 0:
                 Group group = new Group();
                 group.setGroupName("new");
-                read_ml.ch.addToTable(group);
-                read_ml.getGroupModel(true);
-                read_ml.setGroupCombo();
+                write_ml.ch.addToTable(group);
+                write_ml.getGroupModel();
+                write_ml.setGroupCombo(comboBox5);
                 break;
             case 1:
                 Student student = new Student();
                 student.setName("new");
-                student.setGroupId((Group) read_ml.groupList.get(comboBox5.getSelectedIndex()));
-                read_ml.ch.addToTable(student);
-                read_ml.getStudentModel(true);
+                student.setGroupId((Group) write_ml.groupList.get(comboBox5.getSelectedIndex()));
+                write_ml.ch.addToTable(student);
+                write_ml.getStudentModel();
                 break;
             case 2:
                 SportNormName snn = new SportNormName();
                 snn.setSportNormName("new");
-                read_ml.ch.addToTable(snn);
-                read_ml.getSNNameModel();
+                write_ml.ch.addToTable(snn);
+                write_ml.getSNNameModel();
                 break;
             case 3:
                 SportNorm sn = new SportNorm();
-                sn.setSportNormNameId((SportNormName) read_ml.sportNormNameList.get(0));
+                sn.setSportNormNameId((SportNormName) write_ml.sportNormNameList.get(0));
                 sn.setCourseNorm(1);
                 sn.setGenderNorm(0);
                 sn.setHealthGroupNorm(0);
                 sn.setExcellentMark(0);
                 sn.setSatisfactorilyMark(0);
                 sn.setGoodMark(0);
-                read_ml.ch.addToTable(sn);
-                read_ml.getSportNormModel();
+                write_ml.ch.addToTable(sn);
+                write_ml.getSportNormModel();
                 break;
             case 4:
                 Result result = new Result();
-                result.setSportNormId((SportNorm) read_ml.currentAllowedNorms.get(0));
-                result.setStudentId(read_ml.currentResultStudent);
+                result.setSportNormId((SportNorm) write_ml.currentAllowedNorms.get(0));
+                result.setStudentId(write_ml.currentResultStudent);
                 result.setResult(0);
-                read_ml.ch.addToTable(result);
-                read_ml.getResultModel(read_ml.studentsId.get(comboBox6.getSelectedIndex()));
+                write_ml.ch.addToTable(result);
+                write_ml.getResultModel(write_ml.studentsId.get(comboBox6.getSelectedIndex()));
                 break;
         }
         table2.updateUI();
-        read_ml.getGroupModel(false);
+        write_ml.getGroupModel();
     }
 
     private void initComponents() {
