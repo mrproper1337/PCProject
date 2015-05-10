@@ -1,9 +1,5 @@
-import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -21,66 +17,81 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
+import java.util.Objects;
 
 public class ModelLoader {
-    ConnectHibernate ch;
+    final static ConnectHibernate ch = new ConnectHibernate();
+    MarkCalculator mc;
+    Object lastStat;
     final JTable table;
     final JPanel gr_p;
+    final JLabel gr_l1,gr_l2;
     List<Integer> groupsId,snId,studentsId;
     List groupList, sportNormNameList, currentAllowedNorms;
     Student currentResultStudent;
     String lastQuery,currentQuery;
-    boolean listenerIsStopped;
+    boolean readyToListen;
     final boolean editable;
     int group,gender,health,sport_n;
 
-    ModelLoader(final JTable table,final JPanel gr_p,int group,int gender,int health,int sport_n){
-        ch = new ConnectHibernate();
+    ModelLoader(final JTable table,final JPanel gr_p,JLabel gr_l1,JLabel gr_l2){
+
+        mc = new MarkCalculator();
         lastQuery = "";
         groupsId = new ArrayList<>();
         snId = new ArrayList<>();
         studentsId = new ArrayList<>();
         sportNormNameList = ch.loadTable("from SportNormName");
-        listenerIsStopped = true;
+        readyToListen = false;
 
         this.table = table;
         this.gr_p = gr_p;
+        this.gr_l1 = gr_l1;
+        this.gr_l2 = gr_l2;
         this.editable = false;
 
-        this.group = group;
-        this.gender = gender;
-        this.health = health;
-        this.sport_n = sport_n;
+        this.group = 1;
+        this.gender = 0;
+        this.health = 0;
+        this.sport_n = 1;
     }
 
-    ModelLoader(final JTable table,int group){
-        ch = new ConnectHibernate();
+    ModelLoader(final JTable table){
+
         lastQuery = "";
         groupsId = new ArrayList<>();
         snId = new ArrayList<>();
         studentsId = new ArrayList<>();
         sportNormNameList = ch.loadTable("from SportNormName");
-        listenerIsStopped = true;
+        readyToListen = false;
 
         this.table = table;
         this.gr_p = null;
+        this.gr_l1 = null;
+        this.gr_l2 = null;
         this.editable = true;
 
-        this.group = group;
+        this.group = 1;
     }
 
-    void updateModel(int group,int gender,int health,int sport_n){
-        this.group = group;
+    public void setModel(int group,int gender,int health,int sport_n){
+        this.group = group < 0 ? 0 : group;
         this.gender = gender;
         this.health = health;
         this.sport_n = sport_n;
     }
-    void updateModel(int group){
+    public void setModel(int group){
         this.group = group;
+    }
+
+    public boolean isReadyToListen() {
+        return readyToListen;
+    }
+    public void setReadyToListen(boolean readyToListen) {
+        this.readyToListen = readyToListen;
     }
 
 
@@ -127,6 +138,23 @@ public class ModelLoader {
         }
     }
 
+    public void setStats(Group cgroup){
+        lastStat = cgroup;
+        gr_p.removeAll();
+        gr_p.add(new ChartPanel(mc.makeStatGraph(cgroup)));
+        gr_l1.setText(mc.getResults());
+        gr_l2.setText(mc.getMarks());
+        gr_p.revalidate();
+    }
+    public void setStats(Student cstudent){
+        lastStat = cstudent;
+        gr_p.removeAll();
+        gr_p.add(new ChartPanel(mc.makeStatGraph(cstudent)));
+        gr_l1.setText(mc.getResults());
+        gr_l2.setText(mc.getMarks());
+        gr_p.revalidate();
+    }
+
     public void getGroupModel(){
         currentQuery="from Group";
         groupList = ch.loadTable("from Group");
@@ -152,13 +180,13 @@ public class ModelLoader {
             @Override
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 if(!editable)
-                    gr.makeStatGraph((Group) groupList.get(rowIndex));
+                    setStats((Group) groupList.get(rowIndex));
                 return editable;
             }
 
             @Override
             public Object getValueAt(int rowIndex, int columnIndex) {
-                Group ret = (pojo.Group)groupList.get(rowIndex);;
+                Group ret = (pojo.Group)groupList.get(rowIndex);
                 return ret.getGroupName().equals("new") ? "" : ret.getGroupName();
             }
 
@@ -179,21 +207,9 @@ public class ModelLoader {
         table.setModel(groups_tm);
     }
     public void getStudentModel(){
-//        int check = checkBox1.isSelected() ? 1 : 0;
-//        if(!editable){
-//            currentQuery = "from Student where(" +
-//                    "groupId = "+groupsId.get(comboBox1.getSelectedIndex()-1)+
-//                    " and " +
-//                    "gender ="+comboBox2.getSelectedIndex()+
-//                    " and " +
-//                    "healthGroup = "+check+
-//                    ")";
-//        }
-//        else currentQuery = "from Student where groupId = "+groupsId.get(comboBox5.getSelectedIndex());
-
         if(!editable){
             currentQuery = "from Student where(" +
-                    "groupId = "+(group-1)+
+                    "groupId = "+group+
                     " and " +
                     "gender ="+gender+
                     " and " +
@@ -237,7 +253,7 @@ public class ModelLoader {
                 @Override
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
                     if(!editable)
-                        gr.makeStatGraph((Student)studentList.get(rowIndex));
+                        setStats((Student)studentList.get(rowIndex));
                     return editable;
                 }
 
@@ -654,45 +670,47 @@ public class ModelLoader {
     }
     public void setGroupCombo(JComboBox combo){
         List groupList=ch.loadTable("from Group");
-        listenerIsStopped=true;
+        setReadyToListen(false);
         groupsId.clear();
         combo.removeAllItems();
-        if(editable)
+        if(!editable)
             combo.addItem("По групам");
         for(Group a:(java.util.List<Group>)groupList){
             combo.addItem(a.getGroupName());
             groupsId.add(a.getGroupId());
         }
-        listenerIsStopped=false;
+        setReadyToListen(true);
     }
     public void setSNCombo(JComboBox combo){
-        listenerIsStopped = true;
+        setReadyToListen(false);
         snId.clear();
         combo.removeAllItems();
         for(SportNormName a:(List<SportNormName>)sportNormNameList){
             combo.addItem(a.getSportNormName());
             snId.add(a.getSportNormNameId());
         }
-        listenerIsStopped = false;
+        setReadyToListen(true);
     }
     public void setStudentCombo(JComboBox combo){
-        listenerIsStopped = true;
+        setReadyToListen(false);
         combo.removeAllItems();
         studentsId.clear();
-        for(Student s:(List<Student>)ch.loadTable("from Student where groupId = "+groupsId.get(group))){
+        for(Student s:(List<Student>)ch.loadTable("from Student where groupId = "+group)){
             combo.addItem(s.getName());
             studentsId.add(s.getStudentId());
         }
-        listenerIsStopped = false;
+        setReadyToListen(true);
     }
 
 
     class MarkCalculator {
         GraphMaker gr;
-        Object lastStat;
+        String results,marks;
 
-        MarkCalculator(Object lastStat){
-            this.lastStat = lastStat;
+        MarkCalculator(){
+            gr = new GraphMaker();
+            results = null;
+            marks = null;
         }
 
         private  int getMark(SportNorm sn,double result){
@@ -715,19 +733,18 @@ public class ModelLoader {
             }
             return mark;
         }
-        public void makeStatGraph(Group currGroup){
-            lastStat = currGroup;
+        public JFreeChart makeStatGraph(Group currGroup){
             double[] averageResults = new double[4];
             List currStGr = ch.loadTable("from Student where(" +
                     "groupId = "+currGroup.getGroupId()+
                     " and " +
                     "gender ="+gender+
                     " and " +
-                    "healthGroup = "+ health+
+                    "healthGroup = "+health+
                     ")");
 
             List currSP = ch.loadTable("from SportNorm where " +
-                    "(sportNormNameId =" +snId.get(sport_n)+
+                    "(sportNormNameId =" +sport_n+
                     " and " +
                     "genderNorm =" +gender+
                     " and " +
@@ -754,7 +771,7 @@ public class ModelLoader {
 
 
             int[] rc = new int[4];
-            if(studQr!="" && spQr!="")
+            if(!Objects.equals(studQr, "") && !Objects.equals(spQr, ""))
                 for(Result res:(List<Result>)ch.loadTable("from Result where " +
                                 " ("+studQr+")" +
                                 " and " +
@@ -785,9 +802,9 @@ public class ModelLoader {
                     averageResults[i]/=rc[i];
 
             XYSeries groupSeries = new XYSeries("Середні показники "+currGroup.getGroupName());
-            SportNormName spncurr = (SportNormName)ch.loadTable("from SportNormName").get(sport_n);
-            String results = "Середні результати по курсам : ";
-            String marks = "Середні оцінки по курсам : ";
+            SportNormName spncurr = (SportNormName)ch.loadTable("from SportNormName where sportNormNameId ="+sport_n).get(0);
+            results = "Середні результати по курсам : ";
+            marks = "Середні оцінки по курсам : ";
             for(int i = 1;i<=4;i++){
                 groupSeries.add(i,spncurr.getMarkMode()==0?averageResults[i-1]*-1:averageResults[i-1]);
                 SportNorm resNorm = null;
@@ -800,24 +817,17 @@ public class ModelLoader {
 
 
             XYDataset data = new XYSeriesCollection(groupSeries);
-            JFreeChart chart = createChart((XYSeriesCollection)data,"Середні показники "+currGroup.getGroupName());
-            panel.removeAll();
-            l1.setText(results);
-            l2.setText(marks);
-            panel.add(new ChartPanel(chart));
-            panel.revalidate();
+            return gr.createChart((XYSeriesCollection) data, "Середні показники " + currGroup.getGroupName());
         }
-        public void makeStatGraph(Student currStudent){
-            lastStat = currStudent;
+        public JFreeChart makeStatGraph(Student currStudent){
             double[] normResults = new double[4];
             List currSP = ch.loadTable("from SportNorm where " +
-                    "(sportNormNameId =" +ml.snId.get(ml.sport_n)+
+                    "(sportNormNameId =" +sport_n+
                     " and " +
-                    "genderNorm =" +ml.gender+
+                    "genderNorm =" +gender+
                     " and " +
-                    "healthGroupNorm =" +ml.health+
+                    "healthGroupNorm =" +health+
                     ")");
-            System.out.println(currSP.size()+"   hui");
             int iii;
             String spQr = "";
             iii = 0;
@@ -846,9 +856,9 @@ public class ModelLoader {
                     }
                 }
             XYSeries studSeries = new XYSeries("Показники : "+currStudent.getName());
-            SportNormName  spncurr = (SportNormName)ch.loadTable("from SportNormName").get(ml.sport_n);
-            String results = "Результати по курсам : ";
-            String marks = "Оцінки по курсам : ";
+            SportNormName spncurr = (SportNormName)ch.loadTable("from SportNormName where sportNormNameId ="+sport_n).get(0);
+            results = "Результати по курсам : ";
+            marks = "Оцінки по курсам : ";
             for(int i = 1;i<=4;i++){
                 studSeries.add(i, spncurr.getMarkMode() == 0 ? normResults[i - 1] * -1 : normResults[i - 1]);
                 SportNorm resNorm = null;
@@ -861,14 +871,14 @@ public class ModelLoader {
 
 
             XYDataset data = new XYSeriesCollection(studSeries);
-            JFreeChart chart = createChart((XYSeriesCollection)data,"Показники : "+currStudent.getName());
-            panel.removeAll();
-            l1.setText(results);
-            l2.setText(marks);
-            panel.add(new ChartPanel(chart));
-            panel.revalidate();
+            return gr.createChart((XYSeriesCollection) data, "Показники : " + currStudent.getName());
         }
-
+        public String getResults() {
+            return results;
+        }
+        public String getMarks() {
+            return marks;
+        }
     }
     class ComboBoxPanel extends JPanel {
         ArrayList comboItems = null;

@@ -1,9 +1,11 @@
 import pojo.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.util.List;
+
 import javax.swing.*;
-import javax.swing.GroupLayout;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 
 /**
@@ -12,41 +14,56 @@ import javax.swing.GroupLayout;
  */
 public class MainForm extends JFrame {
 
-
     ModelLoader read_ml,write_ml;
-    GraphMaker gm;
-    boolean listenerIsStopped;
 
     public MainForm() {
         initComponents();       //always at first!
 
-        read_ml = new ModelLoader(table1,panel1,0,0,0,0);
-        write_ml = new ModelLoader(table2,0);
-        //gm = new GraphMaker(panel3,label1,label2, read_ml);
-        listenerIsStopped = read_ml.listenerIsStopped;
+        read_ml = new ModelLoader(table1,panel3,label1,label2);
+        write_ml = new ModelLoader(table2);
         read_ml.getGroupModel();
         write_ml.getGroupModel();
         read_ml.setGroupCombo(comboBox1);
         read_ml.setSNCombo(comboBox3);
     }
+    private void updateRTable(){
+        read_ml.setModel(read_ml.groupsId.get(comboBox1.getSelectedIndex()-1),
+                        comboBox2.getSelectedIndex(),
+                        checkBox1.isSelected()?1:0,
+                        read_ml.snId.get(comboBox3.getSelectedIndex()));
+    }
+    private void updateWTable(){
+        write_ml.setModel(write_ml.groupsId.get(comboBox5.getSelectedIndex()));
+    }
     private void applyReadFormFilter(ItemEvent e) {
-        if(!listenerIsStopped){
-            if(comboBox1.getSelectedIndex() == 0) read_ml.getGroupModel();
-            else read_ml.getStudentModel();
-            table1.updateUI();
+        if(read_ml.isReadyToListen()){
+            if(comboBox1.getSelectedIndex() == 0)
+                read_ml.getGroupModel();
+            else {
+                updateRTable();
+                read_ml.getStudentModel();
+                table1.updateUI();
+            }
         }
     }
 
     private void applyWriteFormFilter(ItemEvent e) {
+        write_ml.setReadyToListen(false);
         comboBox5.setEnabled(false);
         comboBox6.setEnabled(false);
+        comboBox5.removeAllItems();
+        comboBox6.removeAllItems();
+        write_ml.setReadyToListen(true);
 
         switch(comboBox4.getSelectedIndex()){
             case 0:
                 write_ml.getGroupModel();
                 break;
             case 1:
+                write_ml.setReadyToListen(false);
                 comboBox5.setEnabled(true);
+                write_ml.setGroupCombo(comboBox5);
+                updateWTable();
                 write_ml.getStudentModel();
                 break;
             case 2:
@@ -56,46 +73,40 @@ public class MainForm extends JFrame {
                 write_ml.getSportNormModel();
                 break;
             case 4:
+                write_ml.setReadyToListen(false);
                 comboBox5.setEnabled(true);
                 comboBox6.setEnabled(true);
+                write_ml.setGroupCombo(comboBox5);
+                updateWTable();
+                write_ml.setStudentCombo(comboBox6);
                 write_ml.getResultModel(write_ml.studentsId.get(0));
                 break;
         }
         table2.updateUI();
     }
     private void applyResultFilter(ItemEvent e) {
-        if(!listenerIsStopped && comboBox4.getSelectedIndex()!=1){
-            if(e.getSource()==comboBox5){
-                listenerIsStopped = true;
-                comboBox6.removeAllItems();
-                write_ml.studentsId.clear();
-                for(Student s:(List<Student>)write_ml.ch.loadTable("from Student where " +
-                                "groupId = " + write_ml.groupsId.get(comboBox5.getSelectedIndex())
-                ))
-                {
-                    comboBox6.addItem(s.getName());
-                    write_ml.studentsId.add(s.getStudentId());
+        if(write_ml.isReadyToListen())
+            if(comboBox4.getSelectedIndex()==4){
+                if(e.getSource()==comboBox5){
+                    updateWTable();
+                    write_ml.setStudentCombo(comboBox6);
                 }
-                listenerIsStopped = false;
-                write_ml.getResultModel(write_ml.studentsId.get(0));
+                else write_ml.getResultModel(write_ml.studentsId.get(comboBox6.getSelectedIndex()));
             }
-            else write_ml.getResultModel(write_ml.studentsId.get(comboBox6.getSelectedIndex()));
-        }
     }
     private void applyStudentFilter(ItemEvent e) {
-        if(!listenerIsStopped && comboBox4.getSelectedIndex()==1)
+        if(write_ml.isReadyToListen() && comboBox4.getSelectedIndex()==1){
+            updateWTable();
             write_ml.getStudentModel();
+        }
     }
-
-
-
-
     private void comboBox3ItemStateChanged(ItemEvent e) {
-        if(!listenerIsStopped){
+        if(read_ml.isReadyToListen() && read_ml.lastStat!=null){
+            updateRTable();
             if(comboBox1.getSelectedIndex() == 0)
-                gm.makeStatGraph((Group)gm.lastStat);
+                read_ml.setStats((Group)read_ml.lastStat);
             else
-                gm.makeStatGraph((Student)gm.lastStat);
+                read_ml.setStats((Student) read_ml.lastStat);
         }
     }
     private void addNewRow(ActionEvent e) {
@@ -104,21 +115,22 @@ public class MainForm extends JFrame {
             case 0:
                 Group group = new Group();
                 group.setGroupName("new");
-                write_ml.ch.addToTable(group);
+                ModelLoader.ch.addToTable(group);
                 write_ml.getGroupModel();
                 write_ml.setGroupCombo(comboBox5);
+                updateWTable();
                 break;
             case 1:
                 Student student = new Student();
                 student.setName("new");
                 student.setGroupId((Group) write_ml.groupList.get(comboBox5.getSelectedIndex()));
-                write_ml.ch.addToTable(student);
+                ModelLoader.ch.addToTable(student);
                 write_ml.getStudentModel();
                 break;
             case 2:
                 SportNormName snn = new SportNormName();
                 snn.setSportNormName("new");
-                write_ml.ch.addToTable(snn);
+                ModelLoader.ch.addToTable(snn);
                 write_ml.getSNNameModel();
                 break;
             case 3:
@@ -130,7 +142,7 @@ public class MainForm extends JFrame {
                 sn.setExcellentMark(0);
                 sn.setSatisfactorilyMark(0);
                 sn.setGoodMark(0);
-                write_ml.ch.addToTable(sn);
+                ModelLoader.ch.addToTable(sn);
                 write_ml.getSportNormModel();
                 break;
             case 4:
@@ -138,12 +150,11 @@ public class MainForm extends JFrame {
                 result.setSportNormId((SportNorm) write_ml.currentAllowedNorms.get(0));
                 result.setStudentId(write_ml.currentResultStudent);
                 result.setResult(0);
-                write_ml.ch.addToTable(result);
+                ModelLoader.ch.addToTable(result);
                 write_ml.getResultModel(write_ml.studentsId.get(comboBox6.getSelectedIndex()));
                 break;
         }
         table2.updateUI();
-        write_ml.getGroupModel();
     }
 
     private void initComponents() {
