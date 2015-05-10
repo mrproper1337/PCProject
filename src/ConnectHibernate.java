@@ -1,4 +1,3 @@
-
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -13,6 +12,7 @@ public class ConnectHibernate {
     private static SessionFactory factory;
     public ConnectHibernate(){
         try{
+            //noinspection deprecation
             factory = new AnnotationConfiguration()
                     .configure()
                     .addAnnotatedClass(Group.class)
@@ -29,7 +29,7 @@ public class ConnectHibernate {
 
     public List loadTable(String request){
         List resultList = null;
-//hibernate load
+
         Session session = factory.openSession();
         Transaction transaction = null;
         try {

@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="PCProject">
+    <output-path>$USER_HOME$/Desktop</output-path>
+    <root id="archive" name="PCProject.jar">
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="module-output" name="PCProject" />
+      <element id="library" level="project" name="Hibernate 4.2.2-4.2.2" />
+      <element id="library" level="project" name="sqlite-jdbc-3.7.6.3-20110609.081603-3" />
+      <element id="library" level="project" name="lib" />
+    </root>
+  </artifact>
+</component>
