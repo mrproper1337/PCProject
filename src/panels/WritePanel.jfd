@@ -1,0 +1,57 @@
+JFDML JFormDesigner: "5.2.1.0.138" Java: "1.8.0_31" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+			"$horizontalGroup": "par l {seq l {space :::p, par l {comp scrollPane1::::589:x, seq {comp comboBox1:::p:157:p, space :::p, comp comboBox2:::p:157:p, space :::p, comp comboBox3:::p:157:p, space ::106:x}}}}"
+			"$verticalGroup": "par l {seq l {space :::p, comp scrollPane1::::386:x, space :::p, par l {comp comboBox1::t:p::p, comp comboBox2::t:p::p, comp comboBox3::t:p::p}, space :::p}}"
+		} ) {
+			name: "this"
+			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+				name: "scrollPane1"
+				add( new FormComponent( "javax.swing.JTable" ) {
+					name: "table1"
+					"rowHeight": 20
+					auxiliary() {
+						"JavaCodeGenerator.variableModifiers": 10
+					}
+				} )
+			} )
+			add( new FormComponent( "javax.swing.JComboBox" ) {
+				name: "comboBox1"
+				"model": new javax.swing.DefaultComboBoxModel {
+					selectedItem: "Групи"
+					addElement( "Групи" )
+					addElement( "Студенти" )
+					addElement( "Нормативи(Назви)" )
+					addElement( "Нормативи(Вимоги)" )
+					addElement( "Результати" )
+				}
+				auxiliary() {
+					"JavaCodeGenerator.variableModifiers": 10
+				}
+				addEvent( new FormEvent( "java.awt.event.ItemListener", "itemStateChanged", "comboBox1ItemStateChanged", true ) )
+			} )
+			add( new FormComponent( "javax.swing.JComboBox" ) {
+				name: "comboBox2"
+				"visible": false
+				auxiliary() {
+					"JavaCodeGenerator.variableModifiers": 10
+				}
+				addEvent( new FormEvent( "java.awt.event.ItemListener", "itemStateChanged", "comboBox2ItemStateChanged", true ) )
+			} )
+			add( new FormComponent( "javax.swing.JComboBox" ) {
+				name: "comboBox3"
+				"visible": false
+				auxiliary() {
+					"JavaCodeGenerator.variableModifiers": 10
+				}
+				addEvent( new FormEvent( "java.awt.event.ItemListener", "itemStateChanged", "comboBox3ItemStateChanged", true ) )
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 5, 15 )
+			"size": new java.awt.Dimension( 595, 430 )
+		} )
+	}
+}
