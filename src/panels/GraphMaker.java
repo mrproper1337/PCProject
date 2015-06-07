@@ -135,7 +135,8 @@ public class GraphMaker {
         results = "Середні результати по курсам : ";
         marks = "Середні оцінки по курсам : ";
         for(int i = 0;i<4;i++){
-            groupSeries.add(i,spncurr.getMarkMode()==0?averageResults[i]*-1:averageResults[i]);
+            if(averageResults[i]!=0)
+                groupSeries.add(i+1,spncurr.getMarkMode()==0?averageResults[i]*-1:averageResults[i]);
             SportNorm resNorm = null;
             for(SportNorm sp:(List<SportNorm>)currSP)
                 if(sp.getCourseNorm() == (i+1))
@@ -189,14 +190,15 @@ public class GraphMaker {
         SportNormName spncurr = SNNModel.snnList.get(ReadPanel.comboBox3.getSelectedIndex());
         results = "Результати по курсам : ";
         marks = "Оцінки по курсам : ";
-        for(int i = 1;i<=4;i++){
-            studSeries.add(i, spncurr.getMarkMode() == 0 ? normResults[i - 1] * -1 : normResults[i - 1]);
+        for(int i = 0;i<4;i++){
+            if(normResults[i]!=0)
+                studSeries.add((i+1), spncurr.getMarkMode() == 0 ? normResults[i] * -1 : normResults[i]);
             SportNorm resNorm = null;
             for(SportNorm sp:(List<SportNorm>)currSP)
-                if(sp.getCourseNorm() == i)
+                if(sp.getCourseNorm() == (i+1))
                     resNorm = sp;
-            results += "  "+(i+1)+"-й : "+(normResults[i-1]==0?"н/а":normResults[i-1]);
-            marks +=   "  "+(normResults[i-1]==0?"н/а":getMark(resNorm,normResults[i-1]));
+            results += "  "+(i+1)+"-й : "+(normResults[i]==0?"н/а":normResults[i]);
+            marks +=   "  "+(normResults[i]==0?"н/а":getMark(resNorm,normResults[i]));
         }
 
 

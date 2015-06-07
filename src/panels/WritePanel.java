@@ -22,6 +22,7 @@ public class WritePanel extends JPanel {
     static boolean readyToListen = false;
 
     public WritePanel() {
+        setReadyToListen(false);
         initComponents();
         table1.setModel(new GroupModel(true));
         initCombos(0);
