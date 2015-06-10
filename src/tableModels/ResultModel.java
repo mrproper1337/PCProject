@@ -3,13 +3,16 @@ package tableModels;
 import panels.WritePanel;
 import pojo.Result;
 import pojo.SportNorm;
+import pojo.Student;
 
 import javax.swing.table.DefaultTableModel;
 import java.util.List;
 
 public class ResultModel extends DefaultTableModel {
     static List<Result> resultList = ConnectHibernate.loadTable("from Result where studentId = "+StudentModel.studentList.get(0).getStudentId());
+    private int studentId;
     public ResultModel(int studentId){
+        this.studentId = studentId;
         resultList = ConnectHibernate.loadTable("from Result where studentId = "+studentId);
     }
 
@@ -72,52 +75,45 @@ public class ResultModel extends DefaultTableModel {
 
     private void addRow(Object aValue,int column){
         Result obj = new Result();
-        SportNorm sn = resultList.get(0).getSportNormId();
+        Student st = StudentModel.studentList.get(studentId);
+        obj.setStudentId(st);
         switch(column){
             case 0:
                 for(Object o:ConnectHibernate.loadTable("from SportNorm where ( " +
                         "courseNorm = 1"+
                         " and " +
-                        "genderNorm ="+sn.getGenderNorm() +
+                        "genderNorm ="+st.getGender() +
                         " and " +
-                        "healthGroupNorm ="+sn.getHealthGroupNorm() +
+                        "healthGroupNorm ="+st.getHealthGroup() +
                         ")")){
                     SportNorm sportNorm = (SportNorm)o;
                     if(sportNorm.getSportNormNameId().getSportNormName().equals(aValue.toString()))
                         obj.setSportNormId(sportNorm);
                 }
-                obj.setStudentId(resultList.get(0).getStudentId());
                 obj.setResult(1);
                 break;
             case 1:
-                for(Object o:ConnectHibernate.loadTable("from SportNorm where ( " +
-                        "courseNorm ="+Integer.parseInt(aValue.toString())+
+                SportNorm ssd = (SportNorm)ConnectHibernate.loadTable("from SportNorm where ( " +
+                        "courseNorm =" + Integer.parseInt(aValue.toString()) +
                         " and " +
-                        "genderNorm ="+sn.getGenderNorm() +
+                        "genderNorm =" + st.getGender() +
                         " and " +
-                        "healthGroupNorm ="+sn.getHealthGroupNorm() +
-                        ")")){
-                    SportNorm sportNorm = (SportNorm)o;
-                    if(sportNorm.getSportNormNameId().equals(sn.getSportNormNameId()))
-                        obj.setSportNormId(sportNorm);
-                }
-                obj.setStudentId(resultList.get(0).getStudentId());
+                        "healthGroupNorm =" + st.getGender() +
+                        ")").get(0);
+                obj.setSportNormId(ssd);
                 obj.setResult(1);
             case 2:
-                for(Object o:ConnectHibernate.loadTable("from SportNorm where ( " +
-                        "courseNorm = 1"+
+                SportNorm ssdd = (SportNorm)ConnectHibernate.loadTable("from SportNorm where ( " +
+                        "courseNorm = 1" +
                         " and " +
-                        "genderNorm ="+sn.getGenderNorm() +
+                        "genderNorm =" + st.getGender() +
                         " and " +
-                        "healthGroupNorm ="+sn.getHealthGroupNorm() +
-                        ")")){
-                    SportNorm sportNorm = (SportNorm)o;
-                    if(sportNorm.getSportNormNameId().equals(sn.getSportNormNameId()))
-                        obj.setSportNormId(sportNorm);
-                }
-                obj.setStudentId(resultList.get(0).getStudentId());
+                        "healthGroupNorm =" + st.getGender() +
+                        ")").get(0);
+                obj.setSportNormId(ssdd);
                 obj.setResult(Double.parseDouble(aValue.toString()));
         }
+        ConnectHibernate.addToTable(obj);
         WritePanel.updateModel();
     }
     private void deleteRow(int row){
@@ -127,15 +123,15 @@ public class ResultModel extends DefaultTableModel {
     }
     private void updateRow(Object aValue, int row, int column){
         Result obj = resultList.get(row);
-        SportNorm sn = resultList.get(row).getSportNormId();
-        switch (column){
+        Student st = StudentModel.studentList.get(studentId);
+        switch(column){
             case 0:
                 for(Object o:ConnectHibernate.loadTable("from SportNorm where ( " +
-                        "courseNorm ="+sn.getCourseNorm()+
+                        "courseNorm = 1"+
                         " and " +
-                        "genderNorm ="+sn.getGenderNorm() +
+                        "genderNorm ="+st.getGender() +
                         " and " +
-                        "healthGroupNorm ="+sn.getHealthGroupNorm() +
+                        "healthGroupNorm ="+st.getGender() +
                         ")")){
                     SportNorm sportNorm = (SportNorm)o;
                     if(sportNorm.getSportNormNameId().getSportNormName().equals(aValue.toString()))
@@ -143,20 +139,16 @@ public class ResultModel extends DefaultTableModel {
                 }
                 break;
             case 1:
-                for(Object o:ConnectHibernate.loadTable("from SportNorm where ( " +
-                        "courseNorm ="+Integer.parseInt(aValue.toString())+
+                SportNorm ssd = (SportNorm)ConnectHibernate.loadTable("from SportNorm where ( " +
+                        "courseNorm =" + Integer.parseInt(aValue.toString()) +
                         " and " +
-                        "genderNorm ="+sn.getGenderNorm() +
+                        "genderNorm =" + st.getGender() +
                         " and " +
-                        "healthGroupNorm ="+sn.getHealthGroupNorm() +
-                        ")")){
-                    SportNorm sportNorm = (SportNorm)o;
-                    if(sportNorm.getSportNormNameId().equals(sn.getSportNormNameId()))
-                        obj.setSportNormId(sportNorm);
-                }
-                break;
+                        "healthGroupNorm =" + st.getGender() +
+                        ")").get(0);
+                obj.setSportNormId(ssd);
             case 2:
-                obj.setResult(Integer.parseInt(aValue.toString()));
+                obj.setResult(Double.parseDouble(aValue.toString()));
         }
         ConnectHibernate.updateInTable(obj);
         WritePanel.updateModel();

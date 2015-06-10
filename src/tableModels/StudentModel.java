@@ -105,6 +105,7 @@ public class StudentModel extends DefaultTableModel {
                 obj.setHealthGroup(aValue.toString().equals("звичайна")?0:1);
                 break;
         }
+        ConnectHibernate.addToTable(obj);
         WritePanel.updateModel();
     }
     private void deleteRow(int row){
